@@ -18,7 +18,7 @@ render (w,h) state =
 
 allForms w h time =
   let
-    unit = 100.0
+    unit = 300.0
   in
     { background = background (toFloat w) (toFloat h)
     , pacman     = pacman unit time
