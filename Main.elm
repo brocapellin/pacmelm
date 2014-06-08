@@ -7,24 +7,16 @@ state = { time = 0.0 }
 
 step deltaTime state = { state | time <- state.time + inSeconds deltaTime }
 
-render (w,h) state = 
-  let
-    forms      = allForms w h state.time
-  in
-    collage w h
-    [ forms.background
-    , forms.pacman
-    ] 
+render (w,h) state = collage w h <| allForms w h state.time
 
 allForms w h time =
   let
-    unit = 300.0
+    unit        = 300.0
+    background  = rect (toFloat w) (toFloat h) |> filled black
   in
-    { background = background (toFloat w) (toFloat h)
-    , pacman     = pacman unit time
-    }
-
-background w h = rect w h |> filled black
+    [ background
+    , pacman unit time
+    ]
 
 pacman unit time = 
   let
@@ -37,9 +29,9 @@ pacman unit time =
                         * halfMouthSize / eatingSpeed
                         * bodySize
     mouth      = filled black <| polygon
-                 [ (-(bodySize * 0.5), mouthEnds)
-                 , (-(bodySize * 0.5), -mouthEnds)
-                 , (bodySize * 0.25, 0.0)
+                 [ (-bodySize*0.5, mouthEnds)
+                 , (-bodySize*0.5, -mouthEnds)
+                 , (bodySize*0.25, 0.0)
                  ]
   in
     group
