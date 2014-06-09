@@ -1,42 +1,55 @@
 import Window
 import Time
 
-main = lift2 render Window.dimensions (foldp step state (fps 25))
+main = renderLoop
 
-state = { time = 0.0 }
+renderLoop =
+  let
+    newState     = newTime
+    initialState = { time = 0.0 }
+    runWorldAt   = foldp newState initialState
+  in
+    lift2 renderResult Window.dimensions
+        <| runWorldAt
+        <| fps 25
 
-step deltaTime state = { state | time <- state.time + inSeconds deltaTime }
+newTime deltaTime oldState =
+    { oldState | time <- oldState.time + inSeconds deltaTime }
 
-render (w,h) state = collage w h <| allForms w h state.time
+renderResult (windowWidth, windowHeight) newState =
+    collage windowWidth windowHeight
+        <| resultObjects windowWidth windowHeight newState
 
-allForms w h time =
+resultObjects windowWidth windowHeight state =
   let
     unit        = 300.0
-    background  = rect (toFloat w) (toFloat h) |> filled black
+    background  = filled black
+                    <| rect (toFloat windowWidth) (toFloat windowHeight)
   in
     [ background
-    , pacman unit time
+    , pacman unit state
     ]
 
-pacman unit time = 
+pacman unit state = 
   let
     bodySize       = unit
-    body           = circle (bodySize*0.5)
-                        |> filled lightYellow
+    body           = filled lightYellow
+                        <| circle (bodySize*0.5)
     halfMouthSize  = 0.6 -- higher is wider
     eatingSpeed    = 0.4 -- lower is faster
-    mouthEnds      = time `fmod` eatingSpeed
-                        * halfMouthSize / eatingSpeed
-                        * bodySize
-    mouth      = filled black <| polygon
-                 [ (-bodySize*0.5, mouthEnds)
-                 , (-bodySize*0.5, -mouthEnds)
-                 , (bodySize*0.25, 0.0)
-                 ]
+    mouthEnds      = state.time `fmod` eatingSpeed
+                        * halfMouthSize / eatingSpeed * bodySize
+    mouth      = filled black
+                    <| polygon
+                       [ (-bodySize*0.5, mouthEnds)
+                       , (-bodySize*0.5, -mouthEnds)
+                       , (bodySize*0.25, 0.0)
+                       ]
   in
     group
     [ body
     , mouth
     ]
 
-fmod x y = x - (toFloat (floor (x / y))) * y
+fmod x y =
+    x - (toFloat (floor (x / y))) * y
