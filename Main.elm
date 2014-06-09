@@ -22,8 +22,8 @@ renderResult (windowWidth, windowHeight) newState =
 
 resultObjects windowWidth windowHeight state =
   let
-    unit        = 300.0
-    background  = filled black
+    unit       = 300.0
+    background = filled black
                     <| rect (toFloat windowWidth) (toFloat windowHeight)
   in
     [ background
