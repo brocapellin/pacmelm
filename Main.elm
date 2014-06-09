@@ -32,19 +32,19 @@ resultObjects windowWidth windowHeight state =
 
 pacman unit state = 
   let
-    bodySize       = unit
-    body           = filled lightYellow
+    bodySize      = unit
+    body          = filled lightYellow
                         <| circle (bodySize*0.5)
-    halfMouthSize  = 0.6 -- higher is wider
-    eatingSpeed    = 0.4 -- lower is faster
-    mouthEnds      = state.time `fmod` eatingSpeed
-                        * halfMouthSize / eatingSpeed * bodySize
-    mouth      = filled black
-                    <| polygon
-                       [ (-bodySize*0.5, mouthEnds)
-                       , (-bodySize*0.5, -mouthEnds)
-                       , (bodySize*0.25, 0.0)
-                       ]
+    halfMouthSize = 0.6 -- higher is wider
+    eatingSpeed   = 0.4 -- lower is faster
+    mouthEnds     = state.time `fmod` eatingSpeed
+                       * halfMouthSize / eatingSpeed * bodySize
+    mouth         = filled black
+                       <| polygon
+                          [ (-bodySize*0.5, mouthEnds)
+                          , (-bodySize*0.5, -mouthEnds)
+                          , (bodySize*0.25, 0.0)
+                          ]
   in
     group
     [ body
