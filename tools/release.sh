@@ -9,3 +9,4 @@ git checkout gh-pages
 cp -Rv /tmp/pacmelm-release/* .
 rm -rf /tmp/pacmelm-release
 mv Main.html index.html
+git add -u
