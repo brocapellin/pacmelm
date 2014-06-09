@@ -1,6 +1,6 @@
 Pacman in Elm
 =============
-An animation of Pacman.
+An animation of Pacman. Use WASD to move Pacman around.
 
 Install
 =======
