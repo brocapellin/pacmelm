@@ -2,10 +2,9 @@ Pacman in Elm
 =============
 An animation of Pacman. Use WASD to move Pacman around.
 
-Install
-=======
-1. Download and unzip.
-2. Open Main.html
+Run
+===
+Check out http://brocapellin.github.io/pacmelm
 
 Build
 =====
