@@ -1,5 +1,6 @@
 Pacman in Elm
 =============
+An animation of Pacman.
 
 Build
 =====
