@@ -4,6 +4,8 @@ if [ ! -f ".pacmelm-tools-dir" ]; then
 fi
 
 cd ..
-cp -Rv build/result pacmelm-$1
-7z a -tzip pacmelm-$1.zip pacmelm-$1
-rm -rf pacmelm-$1
+cp -Rv build/result /tmp/pacmelm-release
+git checkout gh-pages
+cp -Rv /tmp/pacmelm-release/* .
+rm -rf /tmp/pacmelm-release
+mv Main.html index.html
