@@ -1,0 +1,238 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="UTF-8"><title>Main</title><script type="text/javascript" src="resources/elm-runtime-0.12.3.js"></script><script type="text/javascript">Elm.Main = Elm.Main || {};
+Elm.Main.make = function (_elm) {
+   "use strict";
+   _elm.Main = _elm.Main || {};
+   if (_elm.Main.values)
+   return _elm.Main.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Main";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var Keyboard = Elm.Keyboard.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Json = Elm.Native.Json.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var Window = Elm.Window.make(_elm);
+   var _op = {};
+   var fmod = F2(function (x,y) {
+      return x - Basics.toFloat(Basics.floor(x / y)) * y;
+   });
+   var Down = {ctor: "Down"};
+   var Right = {ctor: "Right"};
+   var Up = {ctor: "Up"};
+   var Left = {ctor: "Left"};
+   var unit = 50.0;
+   var pacman = F2(function (unit,
+   state) {
+      return function () {
+         var eatingSpeed = 0.4;
+         var halfMouthSize = 0.6;
+         var bodySize = unit;
+         var mouthEnds = A2(fmod,
+         state.time,
+         eatingSpeed) * halfMouthSize / eatingSpeed * bodySize;
+         var rotation = function () {
+            var _v0 = state.pacman.orientation;
+            switch (_v0.ctor)
+            {case "Down": return 90;
+               case "Left": return 0;
+               case "Right": return 180;
+               case "Up": return 270;}
+            _E.Case($moduleName,
+            "between lines 119 and 125");
+         }();
+         var mouth = Graphics.Collage.filled(Color.black)(Graphics.Collage.polygon(_L.fromArray([{ctor: "_Tuple2"
+                                                                                                 ,_0: (0 - bodySize) * 0.6
+                                                                                                 ,_1: mouthEnds}
+                                                                                                ,{ctor: "_Tuple2"
+                                                                                                 ,_0: (0 - bodySize) * 0.6
+                                                                                                 ,_1: 0 - mouthEnds}
+                                                                                                ,{ctor: "_Tuple2"
+                                                                                                 ,_0: bodySize * 0.25
+                                                                                                 ,_1: 0.0}])));
+         var body = Graphics.Collage.filled(Color.lightYellow)(Graphics.Collage.circle(bodySize * 0.5));
+         return Graphics.Collage.rotate(Basics.degrees(rotation))(Graphics.Collage.move({ctor: "_Tuple2"
+                                                                                        ,_0: state.pacman.position.x
+                                                                                        ,_1: state.pacman.position.y})(Graphics.Collage.group(_L.fromArray([body
+                                                                                                                                                           ,mouth]))));
+      }();
+   });
+   var resultObjects = F3(function (windowWidth,
+   windowHeight,
+   state) {
+      return function () {
+         var background = Graphics.Collage.filled(Color.black)(A2(Graphics.Collage.rect,
+         Basics.toFloat(windowWidth),
+         Basics.toFloat(windowHeight)));
+         return _L.fromArray([background
+                             ,A2(pacman,unit,state)]);
+      }();
+   });
+   var renderResult = F2(function (_v1,
+   newState) {
+      return function () {
+         switch (_v1.ctor)
+         {case "_Tuple2":
+            return A2(Graphics.Collage.collage,
+              _v1._0,
+              _v1._1)(A3(resultObjects,
+              _v1._0,
+              _v1._1,
+              newState));}
+         _E.Case($moduleName,
+         "between lines 96 and 97");
+      }();
+   });
+   var combineToMoment = F2(function (timeDelta,
+   wasd) {
+      return {_: {}
+             ,timeDelta: timeDelta
+             ,wasd: wasd};
+   });
+   var newPacman = F2(function (moment,
+   state) {
+      return function () {
+         var velocity = unit / 3.0;
+         var $ = {ctor: "_Tuple2"
+                 ,_0: Basics.round(state.wasd.gameX)
+                 ,_1: Basics.round(state.wasd.gameY)},
+         gameX = $._0,
+         gameY = $._1;
+         var oldPacman = state.pacman;
+         var newOrientation = function () {
+            var _v5 = {ctor: "_Tuple2"
+                      ,_0: gameX
+                      ,_1: gameY};
+            switch (_v5.ctor)
+            {case "_Tuple2": switch (_v5._0)
+                 {case -1: switch (_v5._1)
+                      {case 0: return Left;}
+                      break;
+                    case 0: switch (_v5._1)
+                      {case -1: return Down;
+                         case 1: return Up;}
+                      break;
+                    case 1: switch (_v5._1)
+                      {case 0: return Right;}
+                      break;}
+                 break;}
+            return oldPacman.orientation;
+         }();
+         var oldPosition = oldPacman.position;
+         var newPosition = _U.replace([["x"
+                                       ,oldPosition.x + state.wasd.gameX * velocity]
+                                      ,["y"
+                                       ,oldPosition.y + state.wasd.gameY * velocity]],
+         oldPosition);
+         return _U.replace([["pacman"
+                            ,_U.replace([["position"
+                                         ,newPosition]
+                                        ,["orientation"
+                                         ,newOrientation]],
+                            oldPacman)]],
+         state);
+      }();
+   });
+   var newWasd = F2(function (moment,
+   state) {
+      return function () {
+         var oldWasd = state.wasd;
+         var $ = _U.eq(moment.wasd.x,
+         oldWasd.realX) && _U.eq(moment.wasd.y,
+         oldWasd.realY) ? {ctor: "_Tuple2"
+                          ,_0: oldWasd.gameX
+                          ,_1: oldWasd.gameY} : _U.eq(moment.wasd.x,
+         0) || _U.eq(moment.wasd.y,
+         0) ? {ctor: "_Tuple2"
+              ,_0: Basics.toFloat(moment.wasd.x)
+              ,_1: Basics.toFloat(moment.wasd.y)} : _U.eq(oldWasd.realX,
+         0) ? {ctor: "_Tuple2"
+              ,_0: Basics.toFloat(moment.wasd.x)
+              ,_1: 0.0} : {ctor: "_Tuple2"
+                          ,_0: 0.0
+                          ,_1: Basics.toFloat(moment.wasd.y)},
+         gameX = $._0,
+         gameY = $._1;
+         return _U.replace([["wasd"
+                            ,_U.replace([["realX"
+                                         ,moment.wasd.x]
+                                        ,["realY",moment.wasd.y]
+                                        ,["gameX",gameX]
+                                        ,["gameY",gameY]],
+                            oldWasd)]],
+         state);
+      }();
+   });
+   var newTime = F2(function (moment,
+   state) {
+      return _U.replace([["time"
+                         ,state.time + Time.inSeconds(moment.timeDelta)]],
+      state);
+   });
+   var renderLoop = function () {
+      var moment = A2(Signal._op["~"],
+      A2(Signal._op["<~"],
+      combineToMoment,
+      Time.fps(25)),
+      Keyboard.wasd);
+      var initialState = {_: {}
+                         ,pacman: {_: {}
+                                  ,orientation: Left
+                                  ,position: {_: {}
+                                             ,x: 0.0
+                                             ,y: 0.0}}
+                         ,time: 0.0
+                         ,wasd: {_: {}
+                                ,gameX: 0.0
+                                ,gameY: 0.0
+                                ,realX: 0
+                                ,realY: 0}};
+      var newState = function (moment) {
+         return function ($) {
+            return newPacman(moment)(newWasd(moment)(newTime(moment)($)));
+         };
+      };
+      var runWorld = A2(Signal.foldp,
+      newState,
+      initialState);
+      return A2(Signal._op["~"],
+      A2(Signal._op["<~"],
+      renderResult,
+      Window.dimensions),
+      runWorld(moment));
+   }();
+   var main = renderLoop;
+   _elm.Main.values = {_op: _op
+                      ,main: main
+                      ,renderLoop: renderLoop
+                      ,newTime: newTime
+                      ,newWasd: newWasd
+                      ,newPacman: newPacman
+                      ,combineToMoment: combineToMoment
+                      ,renderResult: renderResult
+                      ,resultObjects: resultObjects
+                      ,pacman: pacman
+                      ,unit: unit
+                      ,fmod: fmod
+                      ,Left: Left
+                      ,Up: Up
+                      ,Right: Right
+                      ,Down: Down};
+   return _elm.Main.values;
+};</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Main)</script><noscript></noscript></body></html>
