@@ -46,7 +46,7 @@ pacman state =
         World.Right -> 180
         World.Up    -> 270
 
-    bodySize      = World.unit
+    bodySize      = toPixels 1.0
     mouthEnds     = state.worldTime `fmod` eatingSpeed
                        * halfMouthSize / eatingSpeed
                        * bodySize
@@ -57,9 +57,11 @@ pacman state =
     [ body
     , mouth
     ]
-        |> move (state.pacman.position.x,
-                 state.pacman.position.y)
+        |> move (toPixels state.pacman.position.x,
+                 toPixels state.pacman.position.y)
         |> rotate (degrees rotation)
+
+toPixels units = 40.0 * units
 
 fmod x y =
     x - (toFloat (floor (x / y))) * y

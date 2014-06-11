@@ -60,7 +60,7 @@ newPacman state =
     (gameX, gameY) = ( round state.input.move.x
                      , round state.input.move.y
                      )
-    velocity       = unit / 3.0
+    velocity       = 0.4
 
   in
     { state
@@ -69,7 +69,5 @@ newPacman state =
             , orientation <- newOrientation
           }
     }
-
-unit       = 50.0
 
 data Orientation = Left | Up | Right | Down
