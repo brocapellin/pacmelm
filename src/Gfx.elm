@@ -3,6 +3,18 @@ module Gfx where
 import World
 
 
+{- Why can Elm not infer the type of 'state' without the following signature?
+ - Type error without signature:
+
+[4 of 5] Compiling Gfx                 ( Gfx.elm )
+[5 of 5] Compiling Main                ( Main.elm )
+Type error between lines 5 and 6:
+        (Gfx.renderResult <~ Window.dimensions) ~ World.world
+
+   Expected Type: {}
+     Actual Type: {input : {move : {x : Float, y : Float},
+                            wasd : {x : Int, y : Int}}} 
+ -}
 renderResult :
     (Int, Int)
  -> { a
@@ -15,7 +27,8 @@ renderResult :
                     }
       , worldTime : Float
     }
- -> Element
+ -> Element 
+
 renderResult (windowWidth, windowHeight) state =
     resultObjects windowWidth windowHeight state
         |> collage windowWidth windowHeight
