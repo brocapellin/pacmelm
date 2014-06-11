@@ -4,9 +4,9 @@ if [ ! -f ".pacmelm-tools-dir" ]; then
 fi
 
 cd ..
-cp -Rv build/result /tmp/pacmelm-release
+cp -Rv build /tmp/pacmelm-release
 git checkout gh-pages
 cp -Rv /tmp/pacmelm-release/* .
-rm -rf /tmp/pacmelm-release
+rm -rfv /tmp/pacmelm-release
 mv Main.html index.html
 git add -u

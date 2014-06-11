@@ -2,24 +2,14 @@ module WorldTime where
 
 import Time
 
+type State = Float
 
-initialState completeState =
-    { completeState
-        | worldTime = 0.0
-    }
+initialState = 0.0
 
 moment = fps 25
 
-captureMoment timeDelta moment =
-    { moment
-        | worldTime = { timeDelta = timeDelta
-                      }
+captureMoment timeDelta = 
+    { timeDelta = timeDelta
     }
 
-newState moment = newTime moment 
-
-newTime moment state =
-    { state
-        | worldTime <- state.worldTime
-            + inSeconds moment.worldTime.timeDelta
-    }
+newState moment state = state + inSeconds moment.timeDelta 

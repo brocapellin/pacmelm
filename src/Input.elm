@@ -3,48 +3,50 @@ module Input where
 import Keyboard
 
 
+type State a b c =
+    { a
+      | wasd : { b
+                 | x : Int
+                 , y : Int
+               }
+      , move : { c
+                 | x : Float
+                 , y : Float
+               }
+    }
 
-initialState completeState =
-    { completeState
-        | input = { wasd = { x = 0
-                           , y = 0
-                           }
-                  , move = { x = 0.0
-                           , y = 0.0
-                           }
-                  }
+initialState =
+    { wasd = { x = 0
+             , y = 0
+             }
+    , move = { x = 0.0
+             , y = 0.0
+             }
     }
 
 moment = Keyboard.wasd
 
-captureMoment wasd moment =
-    { moment
-        | input = { wasd = wasd
-                  }
+captureMoment wasd =
+    { wasd = wasd
     }
 
-newState moment = newMove moment
-
-newMove moment state =
+newState moment state =
   let
     (moveX, moveY) = if
-        | moment.input.wasd.x == state.input.wasd.x
-            && moment.input.wasd.y == state.input.wasd.y
-            -> (state.input.move.x, state.input.move.y)
-        | moment.input.wasd.x == 0
-            || moment.input.wasd.y == 0
-            -> (toFloat moment.input.wasd.x
-               ,toFloat moment.input.wasd.y
+        | moment.wasd.x == state.wasd.x
+            && moment.wasd.y == state.wasd.y
+            -> (state.move.x, state.move.y)
+        | moment.wasd.x == 0 || moment.wasd.y == 0
+            -> (toFloat moment.wasd.x
+               ,toFloat moment.wasd.y
                )
-        | state.input.move.x == 0
-            -> (toFloat moment.input.wasd.x, 0.0)
+        | state.move.x == 0
+            -> (toFloat moment.wasd.x, 0.0)
         | otherwise
-            -> (0.0, toFloat moment.input.wasd.y)
+            -> (0.0, toFloat moment.wasd.y)
   in 
-    { state
-        | input = { wasd = moment.input.wasd
-                  , move = { x = moveX
-                           , y = moveY
-                           }
-                  }
+    { wasd = moment.wasd
+    , move = { x = moveX
+             , y = moveY
+             }
     }

@@ -1,9 +1,23 @@
-module Graphics where
+module Gfx where
 
 import World
 
-renderResult (windowWidth, windowHeight) newState =
-    resultObjects windowWidth windowHeight newState
+
+renderResult :
+    (Int, Int)
+ -> { a
+      | pacman    : { b
+                      | position : { c
+                                     | x : Float
+                                     , y : Float
+                                   } 
+                      , orientation : World.Orientation
+                    }
+      , worldTime : Float
+    }
+ -> Element
+renderResult (windowWidth, windowHeight) state =
+    resultObjects windowWidth windowHeight state
         |> collage windowWidth windowHeight
 
 resultObjects windowWidth windowHeight state =
@@ -33,7 +47,7 @@ pacman state =
         World.Up    -> 270
 
     bodySize      = World.unit
-    mouthEnds     = state.time `fmod` eatingSpeed
+    mouthEnds     = state.worldTime `fmod` eatingSpeed
                        * halfMouthSize / eatingSpeed
                        * bodySize
     halfMouthSize = 0.6 -- higher is wider

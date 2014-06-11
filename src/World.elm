@@ -5,28 +5,51 @@ import Input
 
 
 
-runWorld = foldp newState initialState moment
+world = foldp newState initialState moment
+
+type State a b c d e f =
+    { a
+      | pacman : { b
+                   | position    : { c
+                                     | x : Float
+                                     , y : Float
+                                   }
+                   , orientation : Orientation
+                 }
+      , input : Input.State d e f
+      , worldTime : WorldTime.State 
+    }
 
 initialState = 
-    ( WorldTime.initialState . Input.initialState )
     { pacman = { position = { x = 0.0
                             , y = 0.0
                             }
                , orientation = Left
                }
+    , input = Input.initialState
+    , worldTime = WorldTime.initialState
     }
 
 moment =
   let
-    captureMoment worldTime input =
-        ( WorldTime.captureMoment worldTime
-        . Input.captureMoment input ) {}
+    combine worldTime input =
+        { worldTime = WorldTime.captureMoment worldTime
+        , input     = Input.captureMoment input
+        }
   in
-    captureMoment <~ WorldTime.moment ~ Input.moment
+    combine <~ WorldTime.moment ~ Input.moment
 
-newState moment = newPacman 
-                  . WorldTime.newState moment
-                  . Input.newState moment
+newState moment state =
+  let
+    newState = 
+        { state
+          | worldTime <- WorldTime.newState
+                            moment.worldTime state.worldTime
+          , input     <- Input.newState
+                            moment.input state.input
+        }
+  in
+    newPacman newState
 
 newPacman state =
   let

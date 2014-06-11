@@ -4,6 +4,6 @@ if [ ! -f ".pacmelm-tools-dir" ]; then
 fi
 
 cd ../src
-rm -rf ../build/result
-elm --cache-dir=../build/cache --build-dir=../build/result --set-runtime=resources/elm-runtime-0.12.3.js Main.elm
-cp -Rv resources ../build/result
+rm -rfv ../build
+elm --make --build-dir=../build --cache-dir=../cache --set-runtime=resources/elm-runtime-0.12.3.js Main.elm
+cp -Rv resources ../build

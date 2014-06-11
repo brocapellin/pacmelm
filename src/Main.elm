@@ -1,6 +1,6 @@
 import Window
 import World
-import Graphics
+import Gfx
 
-main = Graphics.renderResult
-        <~ Window.dimensions ~ World.runWorld
+main = Gfx.renderResult
+        <~ Window.dimensions ~ World.world
