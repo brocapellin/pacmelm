@@ -1,0 +1,7 @@
+[1 of 2] Compiling Gfx                 ( Gfx.elm )
+[2 of 2] Compiling Main                ( Main.elm )
+Type error on line 4, column 8 to 33:
+        Gfx.renderResult <~ world
+
+   Expected Type: {}
+     Actual Type: {y : number}

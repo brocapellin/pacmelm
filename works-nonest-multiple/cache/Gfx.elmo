@@ -1,0 +1,36 @@
+Elm.Gfx = Elm.Gfx || {};
+Elm.Gfx.make = function (_elm) {
+   "use strict";
+   _elm.Gfx = _elm.Gfx || {};
+   if (_elm.Gfx.values)
+   return _elm.Gfx.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Gfx";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Json = Elm.Native.Json.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   var renderResult = function (state) {
+      return Text.asText(state.x);
+   };
+   _elm.Gfx.values = {_op: _op
+                     ,renderResult: renderResult};
+   return _elm.Gfx.values;
+};
