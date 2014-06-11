@@ -7,19 +7,6 @@ import Input
 
 world = foldp newState initialState moment
 
-type State a b c d e f =
-    { a
-      | pacman : { b
-                   | position    : { c
-                                     | x : Float
-                                     , y : Float
-                                   }
-                   , orientation : Orientation
-                 }
-      , input : Input.State d e f
-      , worldTime : WorldTime.State 
-    }
-
 initialState = 
     { pacman = { position = { x = 0.0
                             , y = 0.0

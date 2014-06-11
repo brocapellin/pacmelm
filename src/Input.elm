@@ -3,18 +3,6 @@ module Input where
 import Keyboard
 
 
-type State a b c =
-    { a
-      | wasd : { b
-                 | x : Int
-                 , y : Int
-               }
-      , move : { c
-                 | x : Float
-                 , y : Float
-               }
-    }
-
 initialState =
     { wasd = { x = 0
              , y = 0
