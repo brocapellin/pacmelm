@@ -1,6 +1,7 @@
 module Gfx where
 
 import World
+import Line
 
 
 {- Why can Elm not infer the type of 'state' without the following signature?
@@ -41,7 +42,7 @@ resultObjects windowWidth windowHeight state =
   in
     [ background
     , pacman state
-    ]
+    ] ++ map levelPart World.level
 
 pacman state = 
   let
@@ -78,3 +79,21 @@ toPixels units = 40.0 * units
 
 fmod x y =
     x - (toFloat (floor (x / y))) * y
+
+levelPart segment =
+  let
+    part  = case segment.axis of
+        Line.Y -> rect 1.0 (toPixels segment.length)
+        Line.X -> rect (toPixels segment.length) 1.0
+    (x,y) = case segment.axis of
+        Line.Y -> ( segment.start.x
+                  , segment.start.y + segment.length * 0.5
+                  )
+        Line.X -> ( segment.start.x + segment.length * 0.5
+                  , segment.start.y
+                  )
+  in
+    part
+        |> filled white
+        |> move (toPixels x
+                ,toPixels y)

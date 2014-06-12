@@ -2,6 +2,7 @@ module World where
 
 import WorldTime
 import Input
+import Line
 
 
 
@@ -42,12 +43,15 @@ newPacman state =
   let
     oldPacman      = state.pacman
 
-    newPosition    = { oldPosition
-        | x <- oldPosition.x
-               + state.input.move.x * velocity
-        , y <- oldPosition.y
-               + state.input.move.y * velocity
-        }
+    newPosition    =
+        Line.constrainToClosest
+            { oldPosition
+              | x <- oldPosition.x
+                     + state.input.move.x * velocity
+              , y <- oldPosition.y
+                     + state.input.move.y * velocity
+            }
+            level
 
     newOrientation = case (gameX,gameY) of
         (0, 1)    -> Up
@@ -71,3 +75,9 @@ newPacman state =
     }
 
 data Orientation = Left | Up | Right | Down
+
+level = [ Line.segment -5.0 -5.0 10.0 Line.X
+        , Line.segment -5.0 5.0 10.0 Line.X
+        , Line.segment -5.0 -5.0 10.0 Line.Y
+        , Line.segment 5.0 -5.0 10.0 Line.Y
+        ]
