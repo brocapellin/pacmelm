@@ -2,7 +2,9 @@ module World where
 
 import WorldTime
 import Input
-import Line
+
+import Point
+import LineSegment
 
 
 
@@ -44,7 +46,7 @@ newPacman state =
     oldPacman      = state.pacman
 
     newPosition    =
-        Line.constrainToClosest
+        LineSegment.constrainToClosest
             { oldPosition
               | x <- oldPosition.x
                      + state.input.move.x * velocity
@@ -76,8 +78,8 @@ newPacman state =
 
 data Orientation = Left | Up | Right | Down
 
-level = [ Line.segment -5.0 -5.0 10.0 Line.X
-        , Line.segment -5.0 5.0 10.0 Line.X
-        , Line.segment -5.0 -5.0 10.0 Line.Y
-        , Line.segment 5.0 -5.0 10.0 Line.Y
+level = [ LineSegment.lineSegment (Point.point -5.0 -5.0) 10.0 LineSegment.X
+        , LineSegment.lineSegment (Point.point -5.0 5.0) 10.0 LineSegment.X
+        , LineSegment.lineSegment (Point.point -5.0 -5.0) 10.0 LineSegment.Y
+        , LineSegment.lineSegment (Point.point 5.0 -5.0) 10.0 LineSegment.Y
         ]
