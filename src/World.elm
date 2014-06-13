@@ -8,6 +8,9 @@ import Point (point)
 import LineSegment
 import LineSegment (lineSegment)
 
+import Portal
+import Portal (portal)
+
 
 
 world = foldp newState initialState moment
@@ -46,14 +49,12 @@ newPacman state =
     oldPacman      = state.pacman
 
     newPosition    =
-        LineSegment.constrainToClosest
-            ( point
-                (oldPosition.x
-                 + state.input.move.x * velocity)
-                (oldPosition.y
-                 + state.input.move.y * velocity)
-            )
-            level
+        (constrainToPath . warp . constrainToPath)
+             (point (oldPosition.x
+                     + state.input.move.x * velocity)
+                    (oldPosition.y
+                     + state.input.move.y * velocity)
+             )
 
     newOrientation = case (gameX,gameY) of
         (0, 1)    -> Up
@@ -66,7 +67,7 @@ newPacman state =
     (gameX,gameY)  = ( round state.input.move.x
                      , round state.input.move.y
                      )
-    velocity       = 0.4
+    velocity       = 0.3
 
   in
     { state
@@ -78,8 +79,21 @@ newPacman state =
 
 data Orientation = Left | Up | Right | Down
 
-level = [ lineSegment (point -5.0 -5.0) 10.0 LineSegment.X
-        , lineSegment (point -5.0 5.0) 10.0 LineSegment.X
-        , lineSegment (point -5.0 -5.0) 10.0 LineSegment.Y
-        , lineSegment (point 5.0 -5.0) 10.0 LineSegment.Y
-        ] 
+constrainToPath point =
+    LineSegment.constrainToClosest point pathSegments
+
+pathSegments =
+    [ lineSegment (point -5.0 -5.0) 10.0 LineSegment.X
+    , lineSegment (point -5.0 5.0) 10.0 LineSegment.X
+    , lineSegment (point -5.0 -5.0) 10.0 LineSegment.Y
+    , lineSegment (point 5.0 -5.0) 10.0 LineSegment.Y
+    , lineSegment (point -10.0 0.0) 5.0 LineSegment.X
+    , lineSegment (point 5.0 0.0) 5.0 LineSegment.X
+    ] 
+
+warp = Portal.warp portals
+
+portals      =
+    [ portal 0.1 (point -10.0 0.0) (point 9.8 0.0)
+    , portal 0.1 (point 10.0 0.0) (point -9.8 0.0)
+    ]

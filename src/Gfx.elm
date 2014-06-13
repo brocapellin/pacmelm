@@ -43,7 +43,7 @@ resultObjects windowWidth windowHeight state =
                     |> filled black
   in
        [ background ]
-    ++ map levelPart World.level
+    ++ map levelPart World.pathSegments
     ++ [ pacman state ]
 
 pacman state = 
