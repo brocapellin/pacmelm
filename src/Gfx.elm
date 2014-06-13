@@ -1,7 +1,12 @@
 module Gfx where
 
 import World
+
+import Point
+import Point (point)
+
 import LineSegment
+import LineSegment (lineSegment)
 
 
 {- Why can Elm not infer the type of 'state' without the following signature?
@@ -20,10 +25,7 @@ renderResult :
     (Int, Int)
  -> { a
       | pacman    : { b
-                      | position : { c
-                                     | x : Float
-                                     , y : Float
-                                   } 
+                      | position    : Point.Point c
                       , orientation : World.Orientation
                     }
       , worldTime : Float
@@ -40,9 +42,9 @@ resultObjects windowWidth windowHeight state =
                       (toFloat windowHeight)
                     |> filled black
   in
-    [ background
-    , pacman state
-    ] ++ map levelPart World.level
+       [ background ]
+    ++ map levelPart World.level
+    ++ [ pacman state ]
 
 pacman state = 
   let
@@ -85,11 +87,14 @@ levelPart segment =
     part  = case segment.axis of
         LineSegment.Y -> rect 1.0 (toPixels segment.length)
         LineSegment.X -> rect (toPixels segment.length) 1.0
+
     (x,y) = case segment.axis of
         LineSegment.Y -> ( segment.start.x
-                         , segment.start.y + segment.length * 0.5
+                         , segment.start.y
+                           + segment.length * 0.5
                          )
-        LineSegment.X -> ( segment.start.x + segment.length * 0.5
+        LineSegment.X -> ( segment.start.x
+                           + segment.length * 0.5
                          , segment.start.y
                          )
   in

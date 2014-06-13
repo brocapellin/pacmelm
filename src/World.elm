@@ -3,20 +3,20 @@ module World where
 import WorldTime
 import Input
 
-import Point
+import Point (point)
+
 import LineSegment
+import LineSegment (lineSegment)
 
 
 
 world = foldp newState initialState moment
 
 initialState = 
-    { pacman = { position = { x = 0.0
-                            , y = 0.0
-                            }
-               , orientation = Left
-               }
-    , input = Input.initialState
+    { pacman    = { position    = point 0.0 0.0
+                  , orientation = Left
+                  }
+    , input     = Input.initialState
     , worldTime = WorldTime.initialState
     }
 
@@ -47,12 +47,12 @@ newPacman state =
 
     newPosition    =
         LineSegment.constrainToClosest
-            { oldPosition
-              | x <- oldPosition.x
-                     + state.input.move.x * velocity
-              , y <- oldPosition.y
-                     + state.input.move.y * velocity
-            }
+            ( point
+                (oldPosition.x
+                 + state.input.move.x * velocity)
+                (oldPosition.y
+                 + state.input.move.y * velocity)
+            )
             level
 
     newOrientation = case (gameX,gameY) of
@@ -63,7 +63,7 @@ newPacman state =
         otherwise -> oldPacman.orientation
 
     oldPosition    = oldPacman.position
-    (gameX, gameY) = ( round state.input.move.x
+    (gameX,gameY)  = ( round state.input.move.x
                      , round state.input.move.y
                      )
     velocity       = 0.4
@@ -78,8 +78,8 @@ newPacman state =
 
 data Orientation = Left | Up | Right | Down
 
-level = [ LineSegment.lineSegment (Point.point -5.0 -5.0) 10.0 LineSegment.X
-        , LineSegment.lineSegment (Point.point -5.0 5.0) 10.0 LineSegment.X
-        , LineSegment.lineSegment (Point.point -5.0 -5.0) 10.0 LineSegment.Y
-        , LineSegment.lineSegment (Point.point 5.0 -5.0) 10.0 LineSegment.Y
-        ]
+level = [ lineSegment (point -5.0 -5.0) 10.0 LineSegment.X
+        , lineSegment (point -5.0 5.0) 10.0 LineSegment.X
+        , lineSegment (point -5.0 -5.0) 10.0 LineSegment.Y
+        , lineSegment (point 5.0 -5.0) 10.0 LineSegment.Y
+        ] 

@@ -2,8 +2,6 @@ module WorldTime where
 
 import Time
 
-type State = Float
-
 initialState = 0.0
 
 moment = fps 25
