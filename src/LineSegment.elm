@@ -42,16 +42,6 @@ distancePoint point lineSegment =
                     (mirror lineSegment)
     otherwise -> sqrt (distx^2.0 + disty^2.0)
 
-constrainToClosest point lineSegments =
-  let
-    withDist   = map (\l -> (distancePoint point l,l))
-    sortByDist = sortBy fst
-    target     = (snd . head . sortByDist . withDist)
-                 lineSegments
-  in
-    if | isEmpty lineSegments -> point
-       | otherwise            -> constrain point target
-
 constrain point lineSegment =
   let
     p = point

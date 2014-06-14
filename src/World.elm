@@ -3,6 +3,7 @@ module World where
 import WorldTime
 import Input
 
+import Point
 import Point (point)
 
 import LineSegment
@@ -46,28 +47,36 @@ newState moment state =
 
 newPacman state =
   let
-    oldPacman      = state.pacman
+    oldPacman
+      = state.pacman
 
-    newPosition    =
-        (constrainToPath . warp . constrainToPath)
-             (point (oldPosition.x
-                     + state.input.move.x * velocity)
-                    (oldPosition.y
-                     + state.input.move.y * velocity)
-             )
+    newPosition
+      = (warp . constrainToPath newOrientation)
+            (point (oldPosition.x
+                    + state.input.move.x * velocity)
+                   (oldPosition.y
+                    + state.input.move.y * velocity)
+            )
+             
 
-    newOrientation = case (gameX,gameY) of
+    newOrientation
+      = case (gameX,gameY) of
         (0, 1)    -> Up
         (0,-1)    -> Down
         (1,0)     -> Right
         (-1,0)    -> Left
         otherwise -> oldPacman.orientation
 
-    oldPosition    = oldPacman.position
-    (gameX,gameY)  = ( round state.input.move.x
-                     , round state.input.move.y
-                     )
-    velocity       = 0.3
+    oldPosition
+      = oldPacman.position
+
+    (gameX,gameY)
+      = ( round state.input.move.x
+        , round state.input.move.y
+        )
+
+    velocity
+      = 0.3
 
   in
     { state
@@ -77,10 +86,36 @@ newPacman state =
           }
     }
 
-data Orientation = Left | Up | Right | Down
+constrainToPath orientation point =
+  let
+    distancePoint
+      = LineSegment.distancePoint point
 
-constrainToPath point =
-    LineSegment.constrainToClosest point pathSegments
+    withDistance
+      = map (\l -> (distancePoint l,l))
+
+    axisOrientation
+      = orientationAxis orientation
+
+    sameAxis
+      = filter (\(_,l) -> l.axis == axisOrientation)
+
+    withinRange
+      = filter (\(d,_) -> d <= 1.0)
+
+    sortByDistance
+      = sortBy fst
+
+    allSortedByDistance
+      = (sortByDistance . withDistance) pathSegments
+
+    priorityPaths
+      = (withinRange . sameAxis) allSortedByDistance
+
+    target
+      = (snd . head) (priorityPaths ++ allSortedByDistance)
+  in
+    LineSegment.constrain point target
 
 pathSegments =
     [ lineSegment (point -5.0 -5.0) 10.0 LineSegment.X
@@ -97,3 +132,10 @@ portals      =
     [ portal 0.1 (point -10.0 0.0) (point 9.8 0.0)
     , portal 0.1 (point 10.0 0.0) (point -9.8 0.0)
     ]
+
+data Orientation = Left | Up | Right | Down
+
+orientationAxis orientation =
+    if orientation == Left || orientation == Right
+    then LineSegment.X
+    else LineSegment.Y
