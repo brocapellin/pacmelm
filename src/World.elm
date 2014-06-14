@@ -12,18 +12,35 @@ import LineSegment (lineSegment)
 import Portal
 import Portal (portal)
 
+import Pacman
+import Pacman (pacman)
+
+import Orientation
+import Axis
+
 
 
 world = foldp newState initialState moment
 
+type State =
+    { pacman : Pacman.Pacman 
+    , input  : Input.State 
+    , worldTime : WorldTime.State
+    }
+
+initialState : State 
 initialState = 
-    { pacman    = { position    = point 0.0 0.0
-                  , orientation = Left
-                  }
+    { pacman    = pacman (point 0.0 0.0) Orientation.West
     , input     = Input.initialState
     , worldTime = WorldTime.initialState
     }
 
+type Moment = 
+    { worldTime : WorldTime.Moment
+    , input     : Input.Moment 
+    }
+
+moment : Signal Moment
 moment =
   let
     combine worldTime input =
@@ -33,59 +50,68 @@ moment =
   in
     combine <~ WorldTime.moment ~ Input.moment
 
-newState moment state =
-  let
-    newState = 
-        { state
-          | worldTime <- WorldTime.newState
-                            moment.worldTime state.worldTime
-          , input     <- Input.newState
-                            moment.input state.input
-        }
-  in
-    newPacman newState
+newState
+  : Moment
+ -> State
+ -> State
+newState moment =
+    (positions . orientations . forces moment)
 
-newPacman state =
+forces
+  : Moment
+ -> State
+ -> State
+forces moment state =
+    { state
+    | worldTime <- WorldTime.newState
+                   moment.worldTime state.worldTime
+    , input     <- Input.newState
+                   moment.input state.input
+    }
+
+orientations
+  : State
+ -> State
+orientations state =
   let
-    oldPacman
-      = state.pacman
+    newOrientation
+      = case Orientation.fromPoint state.input.move of
+          Just orientation -> orientation
+          otherwise        -> state.pacman.orientation
+  in
+    { state
+    | pacman <- Pacman.orient state.pacman newOrientation
+    }
+
+positions
+  : State
+ -> State
+positions state =
+  let
+    orientation
+      = state.pacman.orientation
 
     newPosition
-      = (warp . constrainToPath newOrientation)
-            (point (oldPosition.x
+      = ( warp
+        . constrainToPath orientation
+        )
+            (point (state.pacman.position.x
                     + state.input.move.x * velocity)
-                   (oldPosition.y
+                   (state.pacman.position.y
                     + state.input.move.y * velocity)
             )
              
-
-    newOrientation
-      = case (gameX,gameY) of
-        (0, 1)    -> Up
-        (0,-1)    -> Down
-        (1,0)     -> Right
-        (-1,0)    -> Left
-        otherwise -> oldPacman.orientation
-
-    oldPosition
-      = oldPacman.position
-
-    (gameX,gameY)
-      = ( round state.input.move.x
-        , round state.input.move.y
-        )
-
     velocity
       = 0.3
-
   in
     { state
-        | pacman <- { oldPacman
-            | position    <- newPosition
-            , orientation <- newOrientation
-          }
+    | pacman <- Pacman.position state.pacman newPosition
     }
 
+constrainToPath
+  : Orientation.Orientation
+ -> Point.Point
+ -> Point.Point
 constrainToPath orientation point =
   let
     distancePoint
@@ -95,7 +121,7 @@ constrainToPath orientation point =
       = map (\l -> (distancePoint l,l))
 
     axisOrientation
-      = orientationAxis orientation
+      = axisFromOrientation orientation
 
     sameAxis
       = filter (\(_,l) -> l.axis == axisOrientation)
@@ -117,25 +143,28 @@ constrainToPath orientation point =
   in
     LineSegment.constrain point target
 
+pathSegments : [LineSegment.LineSegment]
 pathSegments =
-    [ lineSegment (point -5.0 -5.0) 10.0 LineSegment.X
-    , lineSegment (point -5.0 5.0) 10.0 LineSegment.X
-    , lineSegment (point -5.0 -5.0) 10.0 LineSegment.Y
-    , lineSegment (point 5.0 -5.0) 10.0 LineSegment.Y
-    , lineSegment (point -10.0 0.0) 5.0 LineSegment.X
-    , lineSegment (point 5.0 0.0) 5.0 LineSegment.X
+    [ lineSegment (point -5.0 -5.0) 10.0 Axis.X
+    , lineSegment (point -5.0 5.0) 10.0 Axis.X
+    , lineSegment (point -5.0 -5.0) 10.0 Axis.Y
+    , lineSegment (point 5.0 -5.0) 10.0 Axis.Y
+    , lineSegment (point -10.0 0.0) 5.0 Axis.X
+    , lineSegment (point 5.0 0.0) 5.0 Axis.X
     ] 
 
+warp : Point.Point -> Point.Point
 warp = Portal.warp portals
 
-portals      =
+portals : [Portal.Portal]
+portals =
     [ portal 0.1 (point -10.0 0.0) (point 9.8 0.0)
     , portal 0.1 (point 10.0 0.0) (point -9.8 0.0)
     ]
 
-data Orientation = Left | Up | Right | Down
-
-orientationAxis orientation =
-    if orientation == Left || orientation == Right
-    then LineSegment.X
-    else LineSegment.Y
+axisFromOrientation : Orientation.Orientation -> Axis.Axis
+axisFromOrientation orientation =
+  case orientation of
+    Orientation.West -> Axis.X
+    Orientation.East -> Axis.X
+    otherwise        -> Axis.Y

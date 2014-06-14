@@ -1,29 +1,36 @@
 module LineSegment where
 
 import Point
+import Axis
 
-type LineSegment a b =
-    { a
-    | start  : Point.Point b
+type LineSegment =
+    { start  : Point.Point
     , length : Float
-    , axis   : Axis
+    , axis   : Axis.Axis
     }
 
-data Axis = X | Y
-
+lineSegment
+  : Point.Point
+ -> Float
+ -> Axis.Axis
+ -> LineSegment
 lineSegment start length axis =
     { start  = start
     , length = length
     , axis   = axis
     }
 
+mirror : LineSegment -> LineSegment
 mirror lineSegment =
     { lineSegment
     | start <- Point.mirror lineSegment.start
-    , axis  <- if lineSegment.axis == Y
-               then X else Y
+    , axis  <- Axis.mirror lineSegment.axis
     } 
 
+distancePoint
+  : Point.Point
+ -> LineSegment
+ -> Float
 distancePoint point lineSegment =
   let
     p  = point
@@ -37,17 +44,21 @@ distancePoint point lineSegment =
         else min (abs (p.x - s.start.x)) (abs (p.x - se))
 
   in case lineSegment.axis of
-    Y         -> distancePoint
+    Axis.Y    -> distancePoint
                     (Point.mirror point)
                     (mirror lineSegment)
     otherwise -> sqrt (distx^2.0 + disty^2.0)
 
+constrain
+  : Point.Point
+ -> LineSegment
+ -> Point.Point
 constrain point lineSegment =
   let
     p = point
     s = lineSegment
   in case lineSegment.axis of
-    Y         -> Point.mirror
+    Axis.Y    -> Point.mirror
                     <| constrain
                            (Point.mirror p)
                            (mirror s) 

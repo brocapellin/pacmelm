@@ -8,6 +8,9 @@ import Point (point)
 import LineSegment
 import LineSegment (lineSegment)
 
+import Orientation
+import Axis
+
 
 {- Why can Elm not infer the type of 'state' without the following signature?
  - Type error without signature:
@@ -23,15 +26,8 @@ Type error between lines 5 and 6:
  -}
 renderResult :
     (Int, Int)
- -> { a
-      | pacman    : { b
-                      | position    : Point.Point c
-                      , orientation : World.Orientation
-                    }
-      , worldTime : Float
-    }
+ -> World.State
  -> Element 
-
 renderResult (windowWidth, windowHeight) state =
     resultObjects windowWidth windowHeight state
         |> collage windowWidth windowHeight
@@ -57,10 +53,10 @@ pacman state =
                     ]
                         |> filled black
     rotation      = case state.pacman.orientation of
-        World.Left  -> 0
-        World.Down  -> 90
-        World.Right -> 180
-        World.Up    -> 270
+        Orientation.West  -> 0
+        Orientation.South -> 90
+        Orientation.East  -> 180
+        Orientation.North -> 270
 
     bodySize      = toPixels 1.0
     mouthEnds     = state.worldTime `fmod` eatingSpeed
@@ -85,18 +81,18 @@ fmod x y =
 levelPart segment =
   let
     part  = case segment.axis of
-        LineSegment.Y -> rect 1.0 (toPixels segment.length)
-        LineSegment.X -> rect (toPixels segment.length) 1.0
+        Axis.Y -> rect 1.0 (toPixels segment.length)
+        Axis.X -> rect (toPixels segment.length) 1.0
 
     (x,y) = case segment.axis of
-        LineSegment.Y -> ( segment.start.x
-                         , segment.start.y
-                           + segment.length * 0.5
-                         )
-        LineSegment.X -> ( segment.start.x
-                           + segment.length * 0.5
-                         , segment.start.y
-                         )
+        Axis.Y -> ( segment.start.x
+                  , segment.start.y
+                    + segment.length * 0.5
+                  )
+        Axis.X -> ( segment.start.x
+                    + segment.length * 0.5
+                  , segment.start.y
+                  )
   in
     part
         |> filled white
