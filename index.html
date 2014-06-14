@@ -51,19 +51,22 @@ Elm.Gfx.make = function (_elm) {
    _A = _N.Array.make(_elm),
    _E = _N.Error.make(_elm),
    $moduleName = "Gfx";
+   var Axis = Elm.Axis.make(_elm);
    var Basics = Elm.Basics.make(_elm);
    var Color = Elm.Color.make(_elm);
    var Graphics = Graphics || {};
    Graphics.Collage = Elm.Graphics.Collage.make(_elm);
    var Graphics = Graphics || {};
    Graphics.Element = Elm.Graphics.Element.make(_elm);
-   var Line = Elm.Line.make(_elm);
+   var LineSegment = Elm.LineSegment.make(_elm);
    var List = Elm.List.make(_elm);
    var Maybe = Elm.Maybe.make(_elm);
    var Native = Native || {};
    Native.Json = Elm.Native.Json.make(_elm);
    var Native = Native || {};
    Native.Ports = Elm.Native.Ports.make(_elm);
+   var Orientation = Elm.Orientation.make(_elm);
+   var Point = Elm.Point.make(_elm);
    var Signal = Elm.Signal.make(_elm);
    var String = Elm.String.make(_elm);
    var Text = Elm.Text.make(_elm);
@@ -90,7 +93,7 @@ Elm.Gfx.make = function (_elm) {
                       ,_0: segment.start.x
                       ,_1: segment.start.y + segment.length * 0.5};}
             _E.Case($moduleName,
-            "between lines 88 and 95");
+            "between lines 87 and 96");
          }(),
          x = $._0,
          y = $._1;
@@ -106,7 +109,7 @@ Elm.Gfx.make = function (_elm) {
                  1.0,
                  toPixels(segment.length));}
             _E.Case($moduleName,
-            "between lines 85 and 88");
+            "between lines 83 and 87");
          }();
          return Graphics.Collage.move({ctor: "_Tuple2"
                                       ,_0: toPixels(x)
@@ -124,12 +127,12 @@ Elm.Gfx.make = function (_elm) {
          var rotation = function () {
             var _v2 = state.pacman.orientation;
             switch (_v2.ctor)
-            {case "Down": return 90;
-               case "Left": return 0;
-               case "Right": return 180;
-               case "Up": return 270;}
+            {case "East": return 180;
+               case "North": return 270;
+               case "South": return 90;
+               case "West": return 0;}
             _E.Case($moduleName,
-            "between lines 57 and 63");
+            "between lines 55 and 61");
          }();
          var mouth = Graphics.Collage.filled(Color.black)(Graphics.Collage.polygon(_L.fromArray([{ctor: "_Tuple2"
                                                                                                  ,_0: (0 - bodySize) * 0.6
@@ -154,11 +157,11 @@ Elm.Gfx.make = function (_elm) {
          var background = Graphics.Collage.filled(Color.black)(A2(Graphics.Collage.rect,
          Basics.toFloat(windowWidth),
          Basics.toFloat(windowHeight)));
-         return _L.append(_L.fromArray([background
-                                       ,pacman(state)]),
-         A2(List.map,
+         return _L.append(_L.fromArray([background]),
+         _L.append(A2(List.map,
          levelPart,
-         World.level));
+         World.pathSegments),
+         _L.fromArray([pacman(state)])));
       }();
    });
    var renderResult = F2(function (_v3,
@@ -173,7 +176,7 @@ Elm.Gfx.make = function (_elm) {
               _v3._1,
               state));}
          _E.Case($moduleName,
-         "between lines 34 and 35");
+         "between lines 32 and 33");
       }();
    });
    _elm.Gfx.values = {_op: _op
@@ -196,6 +199,7 @@ Elm.World.make = function (_elm) {
    _A = _N.Array.make(_elm),
    _E = _N.Error.make(_elm),
    $moduleName = "World";
+   var Axis = Elm.Axis.make(_elm);
    var Basics = Elm.Basics.make(_elm);
    var Color = Elm.Color.make(_elm);
    var Graphics = Graphics || {};
@@ -203,103 +207,157 @@ Elm.World.make = function (_elm) {
    var Graphics = Graphics || {};
    Graphics.Element = Elm.Graphics.Element.make(_elm);
    var Input = Elm.Input.make(_elm);
-   var Line = Elm.Line.make(_elm);
+   var LineSegment = Elm.LineSegment.make(_elm);
    var List = Elm.List.make(_elm);
    var Maybe = Elm.Maybe.make(_elm);
    var Native = Native || {};
    Native.Json = Elm.Native.Json.make(_elm);
    var Native = Native || {};
    Native.Ports = Elm.Native.Ports.make(_elm);
+   var Orientation = Elm.Orientation.make(_elm);
+   var Pacman = Elm.Pacman.make(_elm);
+   var Point = Elm.Point.make(_elm);
+   var Portal = Elm.Portal.make(_elm);
    var Signal = Elm.Signal.make(_elm);
    var String = Elm.String.make(_elm);
    var Text = Elm.Text.make(_elm);
    var Time = Elm.Time.make(_elm);
    var WorldTime = Elm.WorldTime.make(_elm);
    var _op = {};
-   var level = _L.fromArray([A4(Line.segment,
-                            -5.0,
-                            -5.0,
-                            10.0,
-                            Line.X)
-                            ,A4(Line.segment,
-                            -5.0,
-                            5.0,
-                            10.0,
-                            Line.X)
-                            ,A4(Line.segment,
-                            -5.0,
-                            -5.0,
-                            10.0,
-                            Line.Y)
-                            ,A4(Line.segment,
-                            5.0,
-                            -5.0,
-                            10.0,
-                            Line.Y)]);
-   var Down = {ctor: "Down"};
-   var Right = {ctor: "Right"};
-   var Up = {ctor: "Up"};
-   var Left = {ctor: "Left"};
-   var newPacman = function (state) {
+   var axisFromOrientation = function (orientation) {
       return function () {
-         var velocity = 0.4;
-         var $ = {ctor: "_Tuple2"
-                 ,_0: Basics.round(state.input.move.x)
-                 ,_1: Basics.round(state.input.move.y)},
-         gameX = $._0,
-         gameY = $._1;
-         var oldPacman = state.pacman;
-         var newOrientation = function () {
-            var _v0 = {ctor: "_Tuple2"
-                      ,_0: gameX
-                      ,_1: gameY};
-            switch (_v0.ctor)
-            {case "_Tuple2": switch (_v0._0)
-                 {case -1: switch (_v0._1)
-                      {case 0: return Left;}
-                      break;
-                    case 0: switch (_v0._1)
-                      {case -1: return Down;
-                         case 1: return Up;}
-                      break;
-                    case 1: switch (_v0._1)
-                      {case 0: return Right;}
-                      break;}
-                 break;}
-            return oldPacman.orientation;
-         }();
-         var oldPosition = oldPacman.position;
-         var newPosition = A2(Line.constrainToClosest,
-         _U.replace([["x"
-                     ,oldPosition.x + state.input.move.x * velocity]
-                    ,["y"
-                     ,oldPosition.y + state.input.move.y * velocity]],
-         oldPosition),
-         level);
+         switch (orientation.ctor)
+         {case "East": return Axis.X;
+            case "West": return Axis.X;}
+         return Axis.Y;
+      }();
+   };
+   var portals = _L.fromArray([A3(Portal.portal,
+                              0.1,
+                              A2(Point.point,-10.0,0.0),
+                              A2(Point.point,9.8,0.0))
+                              ,A3(Portal.portal,
+                              0.1,
+                              A2(Point.point,10.0,0.0),
+                              A2(Point.point,-9.8,0.0))]);
+   var warp = Portal.warp(portals);
+   var pathSegments = _L.fromArray([A3(LineSegment.lineSegment,
+                                   A2(Point.point,-5.0,-5.0),
+                                   10.0,
+                                   Axis.X)
+                                   ,A3(LineSegment.lineSegment,
+                                   A2(Point.point,-5.0,5.0),
+                                   10.0,
+                                   Axis.X)
+                                   ,A3(LineSegment.lineSegment,
+                                   A2(Point.point,-5.0,-5.0),
+                                   10.0,
+                                   Axis.Y)
+                                   ,A3(LineSegment.lineSegment,
+                                   A2(Point.point,5.0,-5.0),
+                                   10.0,
+                                   Axis.Y)
+                                   ,A3(LineSegment.lineSegment,
+                                   A2(Point.point,-10.0,0.0),
+                                   5.0,
+                                   Axis.X)
+                                   ,A3(LineSegment.lineSegment,
+                                   A2(Point.point,5.0,0.0),
+                                   5.0,
+                                   Axis.X)]);
+   var constrainToPath = F2(function (orientation,
+   point) {
+      return function () {
+         var sortByDistance = List.sortBy(Basics.fst);
+         var withinRange = List.filter(function (_v1) {
+            return function () {
+               switch (_v1.ctor)
+               {case "_Tuple2":
+                  return _U.cmp(_v1._0,0.5) < 1;}
+               _E.Case($moduleName,
+               "on line 130, column 27 to 35");
+            }();
+         });
+         var axisOrientation = axisFromOrientation(orientation);
+         var sameAxis = List.filter(function (_v5) {
+            return function () {
+               switch (_v5.ctor)
+               {case "_Tuple2":
+                  return _U.eq(_v5._1.axis,
+                    axisOrientation);}
+               _E.Case($moduleName,
+               "on line 127, column 27 to 52");
+            }();
+         });
+         var distancePoint = LineSegment.distancePoint(point);
+         var withDistance = List.map(function (l) {
+            return {ctor: "_Tuple2"
+                   ,_0: distancePoint(l)
+                   ,_1: l};
+         });
+         var allSortedByDistance = function ($) {
+            return sortByDistance(withDistance($));
+         }(pathSegments);
+         var priorityPaths = function ($) {
+            return withinRange(sameAxis($));
+         }(allSortedByDistance);
+         var target = function ($) {
+            return Basics.snd(List.head($));
+         }(_L.append(priorityPaths,
+         allSortedByDistance));
+         return A2(LineSegment.constrain,
+         point,
+         target);
+      }();
+   });
+   var positions = function (state) {
+      return function () {
+         var velocity = 0.3;
+         var orientation = state.pacman.orientation;
+         var newPosition = function ($) {
+            return warp(constrainToPath(orientation)($));
+         }(A2(Point.point,
+         state.pacman.position.x + state.input.move.x * velocity,
+         state.pacman.position.y + state.input.move.y * velocity));
          return _U.replace([["pacman"
-                            ,_U.replace([["position"
-                                         ,newPosition]
-                                        ,["orientation"
-                                         ,newOrientation]],
-                            oldPacman)]],
+                            ,A2(Pacman.position,
+                            state.pacman,
+                            newPosition)]],
          state);
       }();
    };
-   var newState = F2(function (moment,
-   state) {
+   var orientations = function (state) {
       return function () {
-         var newState = _U.replace([["worldTime"
-                                    ,A2(WorldTime.newState,
-                                    moment.worldTime,
-                                    state.worldTime)]
-                                   ,["input"
-                                    ,A2(Input.newState,
-                                    moment.input,
-                                    state.input)]],
+         var newOrientation = function () {
+            var _v9 = Orientation.fromPoint(state.input.move);
+            switch (_v9.ctor)
+            {case "Just": return _v9._0;}
+            return state.pacman.orientation;
+         }();
+         return _U.replace([["pacman"
+                            ,A2(Pacman.orient,
+                            state.pacman,
+                            newOrientation)]],
          state);
-         return newPacman(newState);
       }();
+   };
+   var forces = F2(function (moment,
+   state) {
+      return _U.replace([["worldTime"
+                         ,A2(WorldTime.newState,
+                         moment.worldTime,
+                         state.worldTime)]
+                        ,["input"
+                         ,A2(Input.newState,
+                         moment.input,
+                         state.input)]],
+      state);
    });
+   var newState = function (moment) {
+      return function ($) {
+         return positions(orientations(forces(moment)($)));
+      };
+   };
    var moment = function () {
       var combine = F2(function (worldTime,
       input) {
@@ -313,14 +371,25 @@ Elm.World.make = function (_elm) {
       WorldTime.moment),
       Input.moment);
    }();
+   var Moment = F2(function (a,b) {
+      return {_: {}
+             ,input: b
+             ,worldTime: a};
+   });
    var initialState = {_: {}
                       ,input: Input.initialState
-                      ,pacman: {_: {}
-                               ,orientation: Left
-                               ,position: {_: {}
-                                          ,x: 0.0
-                                          ,y: 0.0}}
+                      ,pacman: A2(Pacman.pacman,
+                      A2(Point.point,0.0,0.0),
+                      Orientation.West)
                       ,worldTime: WorldTime.initialState};
+   var State = F3(function (a,
+   b,
+   c) {
+      return {_: {}
+             ,input: b
+             ,pacman: a
+             ,worldTime: c};
+   });
    var world = A3(Signal.foldp,
    newState,
    initialState,
@@ -330,13 +399,284 @@ Elm.World.make = function (_elm) {
                        ,initialState: initialState
                        ,moment: moment
                        ,newState: newState
-                       ,newPacman: newPacman
-                       ,level: level
-                       ,Left: Left
-                       ,Up: Up
-                       ,Right: Right
-                       ,Down: Down};
+                       ,forces: forces
+                       ,orientations: orientations
+                       ,positions: positions
+                       ,constrainToPath: constrainToPath
+                       ,pathSegments: pathSegments
+                       ,warp: warp
+                       ,portals: portals
+                       ,axisFromOrientation: axisFromOrientation
+                       ,State: State
+                       ,Moment: Moment};
    return _elm.World.values;
+};Elm.LineSegment = Elm.LineSegment || {};
+Elm.LineSegment.make = function (_elm) {
+   "use strict";
+   _elm.LineSegment = _elm.LineSegment || {};
+   if (_elm.LineSegment.values)
+   return _elm.LineSegment.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "LineSegment";
+   var Axis = Elm.Axis.make(_elm);
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Json = Elm.Native.Json.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Point = Elm.Point.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   var mirror = function (lineSegment) {
+      return _U.replace([["start"
+                         ,Point.mirror(lineSegment.start)]
+                        ,["axis"
+                         ,Axis.mirror(lineSegment.axis)]],
+      lineSegment);
+   };
+   var distancePoint = F2(function (point,
+   lineSegment) {
+      return function () {
+         var s = lineSegment;
+         var se = s.start.x + s.length;
+         var p = point;
+         var disty = Basics.abs(p.y - s.start.y);
+         var distx = _U.cmp(p.x,
+         s.start.x) > -1 && _U.cmp(p.x,
+         se) < 1 ? 0.0 : A2(Basics.min,
+         Basics.abs(p.x - s.start.x),
+         Basics.abs(p.x - se));
+         return function () {
+            var _v0 = lineSegment.axis;
+            switch (_v0.ctor)
+            {case "Y":
+               return A2(distancePoint,
+                 Point.mirror(point),
+                 mirror(lineSegment));}
+            return Basics.sqrt(Math.pow(distx,
+            2.0) + Math.pow(disty,2.0));
+         }();
+      }();
+   });
+   var constrain = F2(function (point,
+   lineSegment) {
+      return function () {
+         var s = lineSegment;
+         var p = point;
+         return function () {
+            var _v1 = lineSegment.axis;
+            switch (_v1.ctor)
+            {case "Y":
+               return Point.mirror(A2(constrain,
+                 Point.mirror(p),
+                 mirror(s)));}
+            return A2(Point.point,
+            function ($) {
+               return Basics.max(s.start.x)(Basics.min(p.x)($));
+            }(s.start.x + s.length),
+            s.start.y);
+         }();
+      }();
+   });
+   var lineSegment = F3(function (start,
+   length,
+   axis) {
+      return {_: {}
+             ,axis: axis
+             ,length: length
+             ,start: start};
+   });
+   var LineSegment = F3(function (a,
+   b,
+   c) {
+      return {_: {}
+             ,axis: c
+             ,length: b
+             ,start: a};
+   });
+   _elm.LineSegment.values = {_op: _op
+                             ,lineSegment: lineSegment
+                             ,mirror: mirror
+                             ,distancePoint: distancePoint
+                             ,constrain: constrain
+                             ,LineSegment: LineSegment};
+   return _elm.LineSegment.values;
+};Elm.Axis = Elm.Axis || {};
+Elm.Axis.make = function (_elm) {
+   "use strict";
+   _elm.Axis = _elm.Axis || {};
+   if (_elm.Axis.values)
+   return _elm.Axis.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Axis";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Json = Elm.Native.Json.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   var Y = {ctor: "Y"};
+   var X = {ctor: "X"};
+   var mirror = function (axis) {
+      return _U.eq(axis,X) ? Y : X;
+   };
+   _elm.Axis.values = {_op: _op
+                      ,mirror: mirror
+                      ,X: X
+                      ,Y: Y};
+   return _elm.Axis.values;
+};Elm.Portal = Elm.Portal || {};
+Elm.Portal.make = function (_elm) {
+   "use strict";
+   _elm.Portal = _elm.Portal || {};
+   if (_elm.Portal.values)
+   return _elm.Portal.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Portal";
+   var Basics = Elm.Basics.make(_elm);
+   var Circle = Elm.Circle.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Json = Elm.Native.Json.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Point = Elm.Point.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   var fmap = F2(function (a,fs) {
+      return function () {
+         var as$ = A2(List.repeat,
+         List.length(fs),
+         a);
+         return A3(List.zipWith,
+         F2(function (f,a) {
+            return f(a);
+         }),
+         fs,
+         as$);
+      }();
+   });
+   var portal = F4(function (radius,
+   a,
+   b,
+   c) {
+      return A2(Circle.intersectsPoint,
+      A2(Circle.circle,c,radius),
+      a) ? Maybe.Just(b) : Maybe.Nothing;
+   });
+   var warp = F2(function (portals,
+   a) {
+      return function () {
+         var portals$ = _L.append(portals,
+         _L.fromArray([A3(portal,
+         1.0e-2,
+         a,
+         a)]));
+         return List.head(Maybe.justs(A2(fmap,
+         a,
+         portals$)));
+      }();
+   });
+   _elm.Portal.values = {_op: _op
+                        ,portal: portal
+                        ,warp: warp
+                        ,fmap: fmap};
+   return _elm.Portal.values;
+};Elm.Circle = Elm.Circle || {};
+Elm.Circle.make = function (_elm) {
+   "use strict";
+   _elm.Circle = _elm.Circle || {};
+   if (_elm.Circle.values)
+   return _elm.Circle.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Circle";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Json = Elm.Native.Json.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Point = Elm.Point.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   var intersectsPoint = F2(function (circle,
+   point) {
+      return _U.cmp(A2(Point.distance,
+      circle.origin,
+      point),
+      circle.radius) < 1;
+   });
+   var circle = F2(function (origin,
+   radius) {
+      return {_: {}
+             ,origin: origin
+             ,radius: radius};
+   });
+   var Circle = F2(function (a,b) {
+      return {_: {}
+             ,origin: a
+             ,radius: b};
+   });
+   _elm.Circle.values = {_op: _op
+                        ,circle: circle
+                        ,intersectsPoint: intersectsPoint
+                        ,Circle: Circle};
+   return _elm.Circle.values;
 };Elm.Input = Elm.Input || {};
 Elm.Input.make = function (_elm) {
    "use strict";
@@ -362,6 +702,7 @@ Elm.Input.make = function (_elm) {
    Native.Json = Elm.Native.Json.make(_elm);
    var Native = Native || {};
    Native.Ports = Elm.Native.Ports.make(_elm);
+   var Point = Elm.Point.make(_elm);
    var Signal = Elm.Signal.make(_elm);
    var String = Elm.String.make(_elm);
    var Text = Elm.Text.make(_elm);
@@ -372,9 +713,11 @@ Elm.Input.make = function (_elm) {
       return function () {
          var $ = _U.eq(moment.wasd.x,
          state.wasd.x) && _U.eq(moment.wasd.y,
-         state.wasd.y) ? {ctor: "_Tuple2"
-                         ,_0: state.move.x
-                         ,_1: state.move.y} : _U.eq(moment.wasd.x,
+         state.wasd.y) || _U.eq(moment.wasd.x,
+         0) && _U.eq(moment.wasd.y,
+         0) ? {ctor: "_Tuple2"
+              ,_0: state.move.x
+              ,_1: state.move.y} : _U.eq(moment.wasd.x,
          0) || _U.eq(moment.wasd.y,
          0) ? {ctor: "_Tuple2"
               ,_0: Basics.toFloat(moment.wasd.x)
@@ -386,36 +729,158 @@ Elm.Input.make = function (_elm) {
                           ,_1: Basics.toFloat(moment.wasd.y)},
          moveX = $._0,
          moveY = $._1;
+         var move$ = state.move;
+         var wasd$ = state.wasd;
          return {_: {}
-                ,move: {_: {},x: moveX,y: moveY}
+                ,move: A2(Point.point,
+                moveX,
+                moveY)
                 ,wasd: moment.wasd};
       }();
    });
    var captureMoment = function (wasd) {
       return {_: {},wasd: wasd};
    };
+   var Moment = function (a) {
+      return {_: {},wasd: a};
+   };
    var moment = Keyboard.wasd;
    var initialState = {_: {}
-                      ,move: {_: {},x: 0.0,y: 0.0}
+                      ,move: A2(Point.point,0.0,0.0)
                       ,wasd: {_: {},x: 0,y: 0}};
+   var State = F2(function (a,b) {
+      return {_: {}
+             ,move: b
+             ,wasd: a};
+   });
    _elm.Input.values = {_op: _op
                        ,initialState: initialState
                        ,moment: moment
                        ,captureMoment: captureMoment
-                       ,newState: newState};
+                       ,newState: newState
+                       ,State: State
+                       ,Moment: Moment};
    return _elm.Input.values;
-};Elm.Line = Elm.Line || {};
-Elm.Line.make = function (_elm) {
+};Elm.Pacman = Elm.Pacman || {};
+Elm.Pacman.make = function (_elm) {
    "use strict";
-   _elm.Line = _elm.Line || {};
-   if (_elm.Line.values)
-   return _elm.Line.values;
+   _elm.Pacman = _elm.Pacman || {};
+   if (_elm.Pacman.values)
+   return _elm.Pacman.values;
    var _N = Elm.Native,
    _U = _N.Utils.make(_elm),
    _L = _N.List.make(_elm),
    _A = _N.Array.make(_elm),
    _E = _N.Error.make(_elm),
-   $moduleName = "Line";
+   $moduleName = "Pacman";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Json = Elm.Native.Json.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Orientation = Elm.Orientation.make(_elm);
+   var Point = Elm.Point.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   var position = F2(function (pacman,
+   position) {
+      return _U.replace([["position"
+                         ,position]],
+      pacman);
+   });
+   var orient = F2(function (pacman,
+   orientation) {
+      return _U.replace([["orientation"
+                         ,orientation]],
+      pacman);
+   });
+   var pacman = F2(function (position,
+   orientation) {
+      return {_: {}
+             ,orientation: orientation
+             ,position: position};
+   });
+   var Pacman = F2(function (a,b) {
+      return {_: {}
+             ,orientation: b
+             ,position: a};
+   });
+   _elm.Pacman.values = {_op: _op
+                        ,pacman: pacman
+                        ,orient: orient
+                        ,position: position
+                        ,Pacman: Pacman};
+   return _elm.Pacman.values;
+};Elm.Orientation = Elm.Orientation || {};
+Elm.Orientation.make = function (_elm) {
+   "use strict";
+   _elm.Orientation = _elm.Orientation || {};
+   if (_elm.Orientation.values)
+   return _elm.Orientation.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Orientation";
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Json = Elm.Native.Json.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Point = Elm.Point.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   var West = {ctor: "West"};
+   var South = {ctor: "South"};
+   var East = {ctor: "East"};
+   var North = {ctor: "North"};
+   var fromPoint = function (point) {
+      return _U.cmp(point.y,
+      0.0) > 0 ? Maybe.Just(North) : _U.cmp(point.y,
+      0.0) < 0 ? Maybe.Just(South) : _U.cmp(point.x,
+      0.0) > 0 ? Maybe.Just(East) : _U.cmp(point.x,
+      0.0) < 0 ? Maybe.Just(West) : Maybe.Nothing;
+   };
+   _elm.Orientation.values = {_op: _op
+                             ,fromPoint: fromPoint
+                             ,North: North
+                             ,East: East
+                             ,South: South
+                             ,West: West};
+   return _elm.Orientation.values;
+};Elm.Point = Elm.Point || {};
+Elm.Point.make = function (_elm) {
+   "use strict";
+   _elm.Point = _elm.Point || {};
+   if (_elm.Point.values)
+   return _elm.Point.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Point";
    var Basics = Elm.Basics.make(_elm);
    var Color = Elm.Color.make(_elm);
    var Graphics = Graphics || {};
@@ -433,104 +898,27 @@ Elm.Line.make = function (_elm) {
    var Text = Elm.Text.make(_elm);
    var Time = Elm.Time.make(_elm);
    var _op = {};
-   var Y = {ctor: "Y"};
-   var X = {ctor: "X"};
-   var mirrorAxis = function (a) {
-      return function () {
-         switch (a.ctor)
-         {case "X": return Y;}
-         return X;
-      }();
-   };
-   var mirrorPoint = function (p) {
+   var mirror = function (p) {
       return {_: {},x: p.y,y: p.x};
    };
-   var mirrorLineSegment = function (ls) {
-      return _U.replace([["start"
-                         ,mirrorPoint(ls.start)]
-                        ,["axis",mirrorAxis(ls.axis)]],
-      ls);
-   };
-   var distance = F2(function (point,
-   lineSegment) {
-      return function () {
-         var s = lineSegment;
-         var se = s.start.x + s.length;
-         var p = point;
-         var disty = Basics.abs(p.y - s.start.y);
-         var distx = _U.cmp(p.x,
-         s.start.x) > -1 && _U.cmp(p.x,
-         se) < 1 ? 0.0 : A2(Basics.min,
-         Basics.abs(p.x - s.start.x),
-         Basics.abs(p.x - se));
-         return function () {
-            var _v1 = lineSegment.axis;
-            switch (_v1.ctor)
-            {case "Y": return A2(distance,
-                 mirrorPoint(point),
-                 mirrorLineSegment(lineSegment));}
-            return Basics.sqrt(Math.pow(distx,
-            2.0) + Math.pow(disty,2.0));
-         }();
-      }();
+   var distance = F2(function (p1,
+   p2) {
+      return Basics.sqrt(Math.pow(Basics.abs(p1.x - p2.x),
+      2.0) + Math.pow(Basics.abs(p1.y - p2.y),
+      2.0));
    });
-   var constrain = F2(function (point,
-   lineSegment) {
-      return function () {
-         var s = lineSegment;
-         var p = point;
-         return function () {
-            var _v2 = lineSegment.axis;
-            switch (_v2.ctor)
-            {case "Y":
-               return mirrorPoint(A2(constrain,
-                 mirrorPoint(p),
-                 mirrorLineSegment(s)));}
-            return {_: {}
-                   ,x: function ($) {
-                      return Basics.max(s.start.x)(Basics.min(p.x)($));
-                   }(s.start.x + s.length)
-                   ,y: s.start.y};
-         }();
-      }();
+   var point = F2(function (x,y) {
+      return {_: {},x: x,y: y};
    });
-   var constrainToClosest = F2(function (point,
-   lineSegments) {
-      return function () {
-         var sortByDist = List.sortBy(Basics.fst);
-         var withDist = List.map(function (l) {
-            return {ctor: "_Tuple2"
-                   ,_0: A2(distance,point,l)
-                   ,_1: l};
-         });
-         var target = function ($) {
-            return Basics.snd(List.head(sortByDist(withDist($))));
-         }(lineSegments);
-         return List.isEmpty(lineSegments) ? point : A2(constrain,
-         point,
-         target);
-      }();
+   var Point = F2(function (a,b) {
+      return {_: {},x: a,y: b};
    });
-   var segment = F4(function (x,
-   y,
-   length,
-   axis) {
-      return {_: {}
-             ,axis: axis
-             ,length: length
-             ,start: {_: {},x: x,y: y}};
-   });
-   _elm.Line.values = {_op: _op
-                      ,segment: segment
-                      ,mirrorPoint: mirrorPoint
-                      ,mirrorAxis: mirrorAxis
-                      ,mirrorLineSegment: mirrorLineSegment
-                      ,distance: distance
-                      ,constrainToClosest: constrainToClosest
-                      ,constrain: constrain
-                      ,X: X
-                      ,Y: Y};
-   return _elm.Line.values;
+   _elm.Point.values = {_op: _op
+                       ,point: point
+                       ,distance: distance
+                       ,mirror: mirror
+                       ,Point: Point};
+   return _elm.Point.values;
 };Elm.WorldTime = Elm.WorldTime || {};
 Elm.WorldTime.make = function (_elm) {
    "use strict";
@@ -568,12 +956,16 @@ Elm.WorldTime.make = function (_elm) {
       return {_: {}
              ,timeDelta: timeDelta};
    };
+   var Moment = function (a) {
+      return {_: {},timeDelta: a};
+   };
    var moment = Time.fps(25);
    var initialState = 0.0;
    _elm.WorldTime.values = {_op: _op
                            ,initialState: initialState
                            ,moment: moment
                            ,captureMoment: captureMoment
-                           ,newState: newState};
+                           ,newState: newState
+                           ,Moment: Moment};
    return _elm.WorldTime.values;
 };</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Main)</script><noscript></noscript></body></html>
