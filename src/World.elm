@@ -101,7 +101,7 @@ constrainToPath orientation point =
       = filter (\(_,l) -> l.axis == axisOrientation)
 
     withinRange
-      = filter (\(d,_) -> d <= 1.0)
+      = filter (\(d,_) -> d <= 0.5)
 
     sortByDistance
       = sortBy fst
