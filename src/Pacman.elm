@@ -8,6 +8,9 @@ type Pacman =
     , orientation : Orientation.Orientation
     }
 
+size : Float
+size = 0.5
+
 pacman
   : Point.Point
  -> Orientation.Orientation

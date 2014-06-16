@@ -18,6 +18,11 @@ import Pacman (pacman)
 import Orientation
 import Axis
 
+import Circle
+import Circle (circle)
+
+import Treasure
+
 
 
 world = foldp newState initialState moment
@@ -26,6 +31,8 @@ type State =
     { pacman : Pacman.Pacman 
     , input  : Input.State 
     , worldTime : WorldTime.State
+    , treasure : Treasure.State
+    , score : Int
     }
 
 initialState : State 
@@ -33,6 +40,8 @@ initialState =
     { pacman    = pacman (point 0.0 0.0) Orientation.West
     , input     = Input.initialState
     , worldTime = WorldTime.initialState
+    , treasure  = Treasure.initialState
+    , score     = 0
     }
 
 type Moment = 
@@ -55,7 +64,7 @@ newState
  -> State
  -> State
 newState moment =
-    (positions . orientations . forces moment)
+    (treasure . positions . orientations . forces moment)
 
 forces
   : Moment
@@ -102,11 +111,31 @@ positions state =
             )
              
     velocity
-      = 0.3
+      = 0.2
   in
     { state
     | pacman <- Pacman.position state.pacman newPosition
     }
+
+treasure
+  : State
+ -> State
+treasure state = 
+  let
+    collide t =
+      Circle.intersectsPoint
+        (circle state.pacman.position (Pacman.size * 0.5))
+        t.position
+
+    (colliding,remaining) = partition collide state.treasure
+
+    points = (sum . map Treasure.points) colliding
+
+  in
+    { state
+    | treasure <- remaining
+    , score <- state.score + points
+    } 
 
 constrainToPath
   : Orientation.Orientation

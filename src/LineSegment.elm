@@ -67,3 +67,31 @@ constrain point lineSegment =
                       (s.start.x + s.length)
                     )
                     s.start.y
+
+sample : Float -> LineSegment -> [Point.Point]
+sample unit lineSegment =
+  let
+    axis = lineSegment.axis
+
+    start = case axis of
+      Axis.X    -> lineSegment.start.x
+      otherwise -> lineSegment.start.y
+
+    partialPoints =
+        range unit start (start + lineSegment.length)
+
+    toPoint partialPoint =
+        case axis of
+          Axis.Y    -> Point.point
+            lineSegment.start.x partialPoint
+          otherwise -> Point.point
+            partialPoint lineSegment.start.y
+
+  in
+    map toPoint partialPoints 
+     
+range : Float -> Float -> Float -> [Float]
+range step start end =
+  if start > end
+  then []
+  else start :: range step (start + step) end

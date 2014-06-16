@@ -11,6 +11,8 @@ import LineSegment (lineSegment)
 import Orientation
 import Axis
 
+import Pacman
+
 
 {- Why can Elm not infer the type of 'state' without the following signature?
  - Type error without signature:
@@ -40,7 +42,18 @@ resultObjects windowWidth windowHeight state =
   in
        [ background ]
     ++ map levelPart World.pathSegments
+    ++ treasure state
     ++ [ pacman state ]
+    ++ [ score windowWidth windowHeight state ]
+
+treasure state =
+  let
+    display t = circle (toPixels 0.05)
+        |> filled white
+        |> move (toPixels t.position.x
+                ,toPixels t.position.y)
+  in
+    map display state.treasure
 
 pacman state = 
   let
@@ -58,7 +71,7 @@ pacman state =
         Orientation.East  -> 180
         Orientation.North -> 270
 
-    bodySize      = toPixels 1.0
+    bodySize      = toPixels Pacman.size
     mouthEnds     = state.worldTime `fmod` eatingSpeed
                        * halfMouthSize / eatingSpeed
                        * bodySize
@@ -95,6 +108,13 @@ levelPart segment =
                   )
   in
     part
-        |> filled white
+        |> filled gray
         |> move (toPixels x
                 ,toPixels y)
+
+score w h state = toText (show state.score)
+                |> Text.color yellow
+                |> bold
+                |> leftAligned
+                |> container w h topLeft 
+                |> toForm
