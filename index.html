@@ -66,6 +66,7 @@ Elm.Gfx.make = function (_elm) {
    var Native = Native || {};
    Native.Ports = Elm.Native.Ports.make(_elm);
    var Orientation = Elm.Orientation.make(_elm);
+   var Pacman = Elm.Pacman.make(_elm);
    var Point = Elm.Point.make(_elm);
    var Signal = Elm.Signal.make(_elm);
    var String = Elm.String.make(_elm);
@@ -73,6 +74,14 @@ Elm.Gfx.make = function (_elm) {
    var Time = Elm.Time.make(_elm);
    var World = Elm.World.make(_elm);
    var _op = {};
+   var score = F3(function (w,
+   h,
+   state) {
+      return Graphics.Collage.toForm(A3(Graphics.Element.container,
+      w,
+      h,
+      Graphics.Element.topLeft)(Text.leftAligned(Text.bold(Text.color(Color.yellow)(Text.toText(String.show(state.score)))))));
+   });
    var fmod = F2(function (x,y) {
       return x - Basics.toFloat(Basics.floor(x / y)) * y;
    });
@@ -93,7 +102,7 @@ Elm.Gfx.make = function (_elm) {
                       ,_0: segment.start.x
                       ,_1: segment.start.y + segment.length * 0.5};}
             _E.Case($moduleName,
-            "between lines 87 and 96");
+            "between lines 100 and 109");
          }(),
          x = $._0,
          y = $._1;
@@ -109,18 +118,18 @@ Elm.Gfx.make = function (_elm) {
                  1.0,
                  toPixels(segment.length));}
             _E.Case($moduleName,
-            "between lines 83 and 87");
+            "between lines 96 and 100");
          }();
          return Graphics.Collage.move({ctor: "_Tuple2"
                                       ,_0: toPixels(x)
-                                      ,_1: toPixels(y)})(Graphics.Collage.filled(Color.white)(part));
+                                      ,_1: toPixels(y)})(Graphics.Collage.filled(Color.gray)(part));
       }();
    };
    var pacman = function (state) {
       return function () {
          var eatingSpeed = 0.4;
          var halfMouthSize = 0.6;
-         var bodySize = toPixels(1.0);
+         var bodySize = toPixels(Pacman.size);
          var mouthEnds = A2(fmod,
          state.worldTime,
          eatingSpeed) * halfMouthSize / eatingSpeed * bodySize;
@@ -132,7 +141,7 @@ Elm.Gfx.make = function (_elm) {
                case "South": return 90;
                case "West": return 0;}
             _E.Case($moduleName,
-            "between lines 55 and 61");
+            "between lines 68 and 74");
          }();
          var mouth = Graphics.Collage.filled(Color.black)(Graphics.Collage.polygon(_L.fromArray([{ctor: "_Tuple2"
                                                                                                  ,_0: (0 - bodySize) * 0.6
@@ -150,6 +159,18 @@ Elm.Gfx.make = function (_elm) {
                                                                                                                                                                      ,mouth]))));
       }();
    };
+   var treasure = function (state) {
+      return function () {
+         var display = function (t) {
+            return Graphics.Collage.move({ctor: "_Tuple2"
+                                         ,_0: toPixels(t.position.x)
+                                         ,_1: toPixels(t.position.y)})(Graphics.Collage.filled(Color.white)(Graphics.Collage.circle(toPixels(5.0e-2))));
+         };
+         return A2(List.map,
+         display,
+         state.treasure);
+      }();
+   };
    var resultObjects = F3(function (windowWidth,
    windowHeight,
    state) {
@@ -161,7 +182,12 @@ Elm.Gfx.make = function (_elm) {
          _L.append(A2(List.map,
          levelPart,
          World.pathSegments),
-         _L.fromArray([pacman(state)])));
+         _L.append(treasure(state),
+         _L.append(_L.fromArray([pacman(state)]),
+         _L.fromArray([A3(score,
+         windowWidth,
+         windowHeight,
+         state)])))));
       }();
    });
    var renderResult = F2(function (_v3,
@@ -176,16 +202,18 @@ Elm.Gfx.make = function (_elm) {
               _v3._1,
               state));}
          _E.Case($moduleName,
-         "between lines 32 and 33");
+         "between lines 34 and 35");
       }();
    });
    _elm.Gfx.values = {_op: _op
                      ,renderResult: renderResult
                      ,resultObjects: resultObjects
+                     ,treasure: treasure
                      ,pacman: pacman
                      ,toPixels: toPixels
                      ,fmod: fmod
-                     ,levelPart: levelPart};
+                     ,levelPart: levelPart
+                     ,score: score};
    return _elm.Gfx.values;
 };Elm.World = Elm.World || {};
 Elm.World.make = function (_elm) {
@@ -201,6 +229,7 @@ Elm.World.make = function (_elm) {
    $moduleName = "World";
    var Axis = Elm.Axis.make(_elm);
    var Basics = Elm.Basics.make(_elm);
+   var Circle = Elm.Circle.make(_elm);
    var Color = Elm.Color.make(_elm);
    var Graphics = Graphics || {};
    Graphics.Collage = Elm.Graphics.Collage.make(_elm);
@@ -222,6 +251,7 @@ Elm.World.make = function (_elm) {
    var String = Elm.String.make(_elm);
    var Text = Elm.Text.make(_elm);
    var Time = Elm.Time.make(_elm);
+   var Treasure = Elm.Treasure.make(_elm);
    var WorldTime = Elm.WorldTime.make(_elm);
    var _op = {};
    var axisFromOrientation = function (orientation) {
@@ -275,7 +305,7 @@ Elm.World.make = function (_elm) {
                {case "_Tuple2":
                   return _U.cmp(_v1._0,0.5) < 1;}
                _E.Case($moduleName,
-               "on line 130, column 27 to 35");
+               "on line 159, column 27 to 35");
             }();
          });
          var axisOrientation = axisFromOrientation(orientation);
@@ -286,7 +316,7 @@ Elm.World.make = function (_elm) {
                   return _U.eq(_v5._1.axis,
                     axisOrientation);}
                _E.Case($moduleName,
-               "on line 127, column 27 to 52");
+               "on line 156, column 27 to 52");
             }();
          });
          var distancePoint = LineSegment.distancePoint(point);
@@ -310,9 +340,33 @@ Elm.World.make = function (_elm) {
          target);
       }();
    });
+   var treasure = function (state) {
+      return function () {
+         var collide = function (t) {
+            return A2(Circle.intersectsPoint,
+            A2(Circle.circle,
+            state.pacman.position,
+            Pacman.size * 0.5),
+            t.position);
+         };
+         var $ = A2(List.partition,
+         collide,
+         state.treasure),
+         colliding = $._0,
+         remaining = $._1;
+         var points = function ($) {
+            return List.sum(List.map(Treasure.points)($));
+         }(colliding);
+         return _U.replace([["treasure"
+                            ,remaining]
+                           ,["score"
+                            ,state.score + points]],
+         state);
+      }();
+   };
    var positions = function (state) {
       return function () {
-         var velocity = 0.3;
+         var velocity = 0.2;
          var orientation = state.pacman.orientation;
          var newPosition = function ($) {
             return warp(constrainToPath(orientation)($));
@@ -355,7 +409,7 @@ Elm.World.make = function (_elm) {
    });
    var newState = function (moment) {
       return function ($) {
-         return positions(orientations(forces(moment)($)));
+         return treasure(positions(orientations(forces(moment)($))));
       };
    };
    var moment = function () {
@@ -381,13 +435,19 @@ Elm.World.make = function (_elm) {
                       ,pacman: A2(Pacman.pacman,
                       A2(Point.point,0.0,0.0),
                       Orientation.West)
+                      ,score: 0
+                      ,treasure: Treasure.initialState
                       ,worldTime: WorldTime.initialState};
-   var State = F3(function (a,
+   var State = F5(function (a,
    b,
-   c) {
+   c,
+   d,
+   e) {
       return {_: {}
              ,input: b
              ,pacman: a
+             ,score: e
+             ,treasure: d
              ,worldTime: c};
    });
    var world = A3(Signal.foldp,
@@ -402,6 +462,7 @@ Elm.World.make = function (_elm) {
                        ,forces: forces
                        ,orientations: orientations
                        ,positions: positions
+                       ,treasure: treasure
                        ,constrainToPath: constrainToPath
                        ,pathSegments: pathSegments
                        ,warp: warp
@@ -410,6 +471,107 @@ Elm.World.make = function (_elm) {
                        ,State: State
                        ,Moment: Moment};
    return _elm.World.values;
+};Elm.Treasure = Elm.Treasure || {};
+Elm.Treasure.make = function (_elm) {
+   "use strict";
+   _elm.Treasure = _elm.Treasure || {};
+   if (_elm.Treasure.values)
+   return _elm.Treasure.values;
+   var _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Treasure";
+   var Axis = Elm.Axis.make(_elm);
+   var Basics = Elm.Basics.make(_elm);
+   var Color = Elm.Color.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Collage = Elm.Graphics.Collage.make(_elm);
+   var Graphics = Graphics || {};
+   Graphics.Element = Elm.Graphics.Element.make(_elm);
+   var LineSegment = Elm.LineSegment.make(_elm);
+   var List = Elm.List.make(_elm);
+   var Maybe = Elm.Maybe.make(_elm);
+   var Native = Native || {};
+   Native.Json = Elm.Native.Json.make(_elm);
+   var Native = Native || {};
+   Native.Ports = Elm.Native.Ports.make(_elm);
+   var Point = Elm.Point.make(_elm);
+   var Signal = Elm.Signal.make(_elm);
+   var String = Elm.String.make(_elm);
+   var Text = Elm.Text.make(_elm);
+   var Time = Elm.Time.make(_elm);
+   var _op = {};
+   var treasureSegments = _L.fromArray([A3(LineSegment.lineSegment,
+                                       A2(Point.point,-5.0,5.0),
+                                       10.0,
+                                       Axis.X)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-5.0,-5.0),
+                                       10.0,
+                                       Axis.Y)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,5.0,-5.0),
+                                       10.0,
+                                       Axis.Y)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-10.0,0.0),
+                                       5.0,
+                                       Axis.X)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,5.0,0.0),
+                                       5.0,
+                                       Axis.X)]);
+   var treasure = F2(function (kind,
+   position) {
+      return {_: {}
+             ,kind: kind
+             ,position: position};
+   });
+   var generateTreasure = F3(function (kind,
+   unit,
+   lineSegment) {
+      return function () {
+         var points = A2(LineSegment.sample,
+         unit,
+         lineSegment);
+         return A2(List.map,
+         treasure(kind),
+         points);
+      }();
+   });
+   var Treasure = F2(function (a,
+   b) {
+      return {_: {}
+             ,kind: b
+             ,position: a};
+   });
+   var Cherry = {ctor: "Cherry"};
+   var Normal = {ctor: "Normal"};
+   var points = function (t) {
+      return function () {
+         var _v0 = t.kind;
+         switch (_v0.ctor)
+         {case "Cherry": return 100;
+            case "Normal": return 10;}
+         _E.Case($moduleName,
+         "between lines 26 and 28");
+      }();
+   };
+   var initialState = A2(List.concatMap,
+   A2(generateTreasure,Normal,0.5),
+   treasureSegments);
+   _elm.Treasure.values = {_op: _op
+                          ,treasure: treasure
+                          ,points: points
+                          ,initialState: initialState
+                          ,generateTreasure: generateTreasure
+                          ,treasureSegments: treasureSegments
+                          ,Normal: Normal
+                          ,Cherry: Cherry
+                          ,Treasure: Treasure};
+   return _elm.Treasure.values;
 };Elm.LineSegment = Elm.LineSegment || {};
 Elm.LineSegment.make = function (_elm) {
    "use strict";
@@ -441,6 +603,48 @@ Elm.LineSegment.make = function (_elm) {
    var Text = Elm.Text.make(_elm);
    var Time = Elm.Time.make(_elm);
    var _op = {};
+   var range = F3(function (step,
+   start,
+   end) {
+      return _U.cmp(start,
+      end) > 0 ? _L.fromArray([]) : {ctor: "::"
+                                    ,_0: start
+                                    ,_1: A3(range,
+                                    step,
+                                    start + step,
+                                    end)};
+   });
+   var sample = F2(function (unit,
+   lineSegment) {
+      return function () {
+         var axis = lineSegment.axis;
+         var start = function () {
+            switch (axis.ctor)
+            {case "X":
+               return lineSegment.start.x;}
+            return lineSegment.start.y;
+         }();
+         var partialPoints = A3(range,
+         unit,
+         start,
+         start + lineSegment.length);
+         var toPoint = function (partialPoint) {
+            return function () {
+               switch (axis.ctor)
+               {case "Y":
+                  return A2(Point.point,
+                    lineSegment.start.x,
+                    partialPoint);}
+               return A2(Point.point,
+               partialPoint,
+               lineSegment.start.y);
+            }();
+         };
+         return A2(List.map,
+         toPoint,
+         partialPoints);
+      }();
+   });
    var mirror = function (lineSegment) {
       return _U.replace([["start"
                          ,Point.mirror(lineSegment.start)]
@@ -461,8 +665,8 @@ Elm.LineSegment.make = function (_elm) {
          Basics.abs(p.x - s.start.x),
          Basics.abs(p.x - se));
          return function () {
-            var _v0 = lineSegment.axis;
-            switch (_v0.ctor)
+            var _v2 = lineSegment.axis;
+            switch (_v2.ctor)
             {case "Y":
                return A2(distancePoint,
                  Point.mirror(point),
@@ -478,8 +682,8 @@ Elm.LineSegment.make = function (_elm) {
          var s = lineSegment;
          var p = point;
          return function () {
-            var _v1 = lineSegment.axis;
-            switch (_v1.ctor)
+            var _v3 = lineSegment.axis;
+            switch (_v3.ctor)
             {case "Y":
                return Point.mirror(A2(constrain,
                  Point.mirror(p),
@@ -513,6 +717,8 @@ Elm.LineSegment.make = function (_elm) {
                              ,mirror: mirror
                              ,distancePoint: distancePoint
                              ,constrain: constrain
+                             ,sample: sample
+                             ,range: range
                              ,LineSegment: LineSegment};
    return _elm.LineSegment.values;
 };Elm.Axis = Elm.Axis || {};
@@ -810,12 +1016,14 @@ Elm.Pacman.make = function (_elm) {
              ,orientation: orientation
              ,position: position};
    });
+   var size = 0.5;
    var Pacman = F2(function (a,b) {
       return {_: {}
              ,orientation: b
              ,position: a};
    });
    _elm.Pacman.values = {_op: _op
+                        ,size: size
                         ,pacman: pacman
                         ,orient: orient
                         ,position: position
