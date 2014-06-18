@@ -11,4 +11,4 @@ Build
 1. Install Elm
 2. Run tools/build.sh
 
-Build is located in build/
+Main.html is located in build/release/build

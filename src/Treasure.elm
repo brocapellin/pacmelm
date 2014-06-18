@@ -45,7 +45,7 @@ generateTreasure kind unit lineSegment =
 treasureSegments : [LineSegment.LineSegment]
 treasureSegments =
     [ lineSegment (point -5.0 5.0) 10.0 Axis.X
-    , lineSegment (point -5.0 -5.0) 10.0 Axis.Y
+    , lineSegment (point -5.0 -5.0) 10.0 Axis.Y 
     , lineSegment (point 5.0 -5.0) 10.0 Axis.Y
     , lineSegment (point -10.0 0.0) 5.0 Axis.X
     , lineSegment (point 5.0 0.0) 5.0 Axis.X 
