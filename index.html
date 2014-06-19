@@ -86,7 +86,7 @@ Elm.Gfx.make = function (_elm) {
       return x - Basics.toFloat(Basics.floor(x / y)) * y;
    });
    var toPixels = function (units) {
-      return 40.0 * units;
+      return 16.4 * units;
    };
    var levelPart = function (segment) {
       return function () {
@@ -102,7 +102,7 @@ Elm.Gfx.make = function (_elm) {
                       ,_0: segment.start.x
                       ,_1: segment.start.y + segment.length * 0.5};}
             _E.Case($moduleName,
-            "between lines 100 and 109");
+            "between lines 92 and 101");
          }(),
          x = $._0,
          y = $._1;
@@ -118,7 +118,7 @@ Elm.Gfx.make = function (_elm) {
                  1.0,
                  toPixels(segment.length));}
             _E.Case($moduleName,
-            "between lines 96 and 100");
+            "between lines 88 and 92");
          }();
          return Graphics.Collage.move({ctor: "_Tuple2"
                                       ,_0: toPixels(x)
@@ -141,7 +141,7 @@ Elm.Gfx.make = function (_elm) {
                case "South": return 90;
                case "West": return 0;}
             _E.Case($moduleName,
-            "between lines 68 and 74");
+            "between lines 60 and 66");
          }();
          var mouth = Graphics.Collage.filled(Color.black)(Graphics.Collage.polygon(_L.fromArray([{ctor: "_Tuple2"
                                                                                                  ,_0: (0 - bodySize) * 0.6
@@ -175,19 +175,20 @@ Elm.Gfx.make = function (_elm) {
    windowHeight,
    state) {
       return function () {
-         var background = Graphics.Collage.filled(Color.black)(A2(Graphics.Collage.rect,
-         Basics.toFloat(windowWidth),
-         Basics.toFloat(windowHeight)));
+         var background = Graphics.Collage.group(_L.fromArray([Graphics.Collage.filled(Color.black)(A2(Graphics.Collage.rect,
+                                                              Basics.toFloat(windowWidth),
+                                                              Basics.toFloat(windowHeight)))
+                                                              ,Graphics.Collage.toForm(A3(Graphics.Element.fittedImage,
+                                                              462,
+                                                              511,
+                                                              "resources/level.png"))]));
          return _L.append(_L.fromArray([background]),
-         _L.append(A2(List.map,
-         levelPart,
-         World.pathSegments),
          _L.append(treasure(state),
          _L.append(_L.fromArray([pacman(state)]),
          _L.fromArray([A3(score,
          windowWidth,
          windowHeight,
-         state)])))));
+         state)]))));
       }();
    });
    var renderResult = F2(function (_v3,
@@ -202,7 +203,7 @@ Elm.Gfx.make = function (_elm) {
               _v3._1,
               state));}
          _E.Case($moduleName,
-         "between lines 34 and 35");
+         "between lines 22 and 23");
       }();
    });
    _elm.Gfx.values = {_op: _op
@@ -264,37 +265,225 @@ Elm.World.make = function (_elm) {
    };
    var portals = _L.fromArray([A3(Portal.portal,
                               0.1,
-                              A2(Point.point,-10.0,0.0),
-                              A2(Point.point,9.8,0.0))
+                              A2(Point.point,-14.5,1.0),
+                              A2(Point.point,13.5,1.0))
                               ,A3(Portal.portal,
                               0.1,
-                              A2(Point.point,10.0,0.0),
-                              A2(Point.point,-9.8,0.0))]);
+                              A2(Point.point,14.5,1.0),
+                              A2(Point.point,-13.5,1.0))]);
    var warp = Portal.warp(portals);
-   var pathSegments = _L.fromArray([A3(LineSegment.lineSegment,
-                                   A2(Point.point,-5.0,-5.0),
-                                   10.0,
-                                   Axis.X)
-                                   ,A3(LineSegment.lineSegment,
-                                   A2(Point.point,-5.0,5.0),
-                                   10.0,
-                                   Axis.X)
-                                   ,A3(LineSegment.lineSegment,
-                                   A2(Point.point,-5.0,-5.0),
-                                   10.0,
-                                   Axis.Y)
-                                   ,A3(LineSegment.lineSegment,
-                                   A2(Point.point,5.0,-5.0),
-                                   10.0,
-                                   Axis.Y)
-                                   ,A3(LineSegment.lineSegment,
-                                   A2(Point.point,-10.0,0.0),
-                                   5.0,
-                                   Axis.X)
-                                   ,A3(LineSegment.lineSegment,
-                                   A2(Point.point,5.0,0.0),
-                                   5.0,
-                                   Axis.X)]);
+   var pathSegmentsLeft = _L.fromArray([A3(LineSegment.lineSegment,
+                                       A2(Point.point,-12.5,-14.0),
+                                       3.0,
+                                       Axis.Y)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-1.5,-14.0),
+                                       3.0,
+                                       Axis.Y)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-12.5,-11.0),
+                                       5.0,
+                                       Axis.X)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-4.5,-11.0),
+                                       3.0,
+                                       Axis.X)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-10.5,-11.0),
+                                       3.0,
+                                       Axis.Y)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-7.5,-11.0),
+                                       25.0,
+                                       Axis.Y)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-4.5,-11.0),
+                                       3.0,
+                                       Axis.Y)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-12.5,-8.0),
+                                       2.0,
+                                       Axis.X)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-12.5,-8.0),
+                                       3.0,
+                                       Axis.Y)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-1.5,-8.0),
+                                       3.0,
+                                       Axis.Y)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-12.5,-5.0),
+                                       11.0,
+                                       Axis.X)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-4.5,-5.0),
+                                       9.0,
+                                       Axis.Y)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-14.5,1.0),
+                                       10.0,
+                                       Axis.X)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-1.5,4.0),
+                                       3.0,
+                                       Axis.Y)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-12.5,7.0),
+                                       5.0,
+                                       Axis.X)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-4.5,7.0),
+                                       3.0,
+                                       Axis.X)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-12.5,7.0),
+                                       7.0,
+                                       Axis.Y)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-4.5,7.0),
+                                       3.0,
+                                       Axis.Y)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-1.5,10.0),
+                                       4.0,
+                                       Axis.Y)
+                                       ,A3(LineSegment.lineSegment,
+                                       A2(Point.point,-12.5,14.0),
+                                       11.0,
+                                       Axis.X)]);
+   var pathSegments = _L.append(_L.fromArray([A3(LineSegment.lineSegment,
+                                             A2(Point.point,-12.5,-14.0),
+                                             25.0,
+                                             Axis.X)
+                                             ,A3(LineSegment.lineSegment,
+                                             A2(Point.point,-7.5,-8.0),
+                                             15.0,
+                                             Axis.X)
+                                             ,A3(LineSegment.lineSegment,
+                                             A2(Point.point,-4.5,-2.0),
+                                             9.0,
+                                             Axis.X)
+                                             ,A3(LineSegment.lineSegment,
+                                             A2(Point.point,-4.5,4.0),
+                                             9.0,
+                                             Axis.X)
+                                             ,A3(LineSegment.lineSegment,
+                                             A2(Point.point,-12.5,10.0),
+                                             25.0,
+                                             Axis.X)]),
+   _L.append(pathSegmentsLeft,
+   A2(List.map,
+   LineSegment.mirrorInX,
+   pathSegmentsLeft)));
+   var treasurePathSegmentsLeft = _L.fromArray([A3(LineSegment.lineSegment,
+                                               A2(Point.point,-12.5,-14.0),
+                                               12.0,
+                                               Axis.X)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-12.5,-13.0),
+                                               2.0,
+                                               Axis.Y)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-1.5,-13.0),
+                                               2.0,
+                                               Axis.Y)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-11.5,-11.0),
+                                               4.0,
+                                               Axis.X)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-4.5,-11.0),
+                                               2.0,
+                                               Axis.X)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-10.5,-10.0),
+                                               2.0,
+                                               Axis.Y)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-7.5,-10.0),
+                                               24.0,
+                                               Axis.Y)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-4.5,-10.0),
+                                               2.0,
+                                               Axis.Y)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-11.5,-8.0),
+                                               0.0,
+                                               Axis.X)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-6.5,-8.0),
+                                               1.0,
+                                               Axis.X)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-3.5,-8.0),
+                                               2.0,
+                                               Axis.X)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-12.5,-7.0),
+                                               2.0,
+                                               Axis.Y)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-1.5,-7.0),
+                                               2.0,
+                                               Axis.Y)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-11.5,-5.0),
+                                               3.0,
+                                               Axis.X)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-6.5,-5.0),
+                                               4.0,
+                                               Axis.X)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-12.5,7.0),
+                                               4.0,
+                                               Axis.X)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-4.5,7.0),
+                                               3.0,
+                                               Axis.X)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-12.5,8.0),
+                                               3.0,
+                                               Axis.Y)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-4.5,8.0),
+                                               2.0,
+                                               Axis.Y)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-11.5,10.0),
+                                               3.0,
+                                               Axis.X)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-6.5,10.0),
+                                               1.0,
+                                               Axis.X)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-3.5,10.0),
+                                               3.0,
+                                               Axis.X)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-12.5,13.0),
+                                               1.0,
+                                               Axis.Y)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-1.5,11.0),
+                                               3.0,
+                                               Axis.Y)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-11.5,14.0),
+                                               3.0,
+                                               Axis.X)
+                                               ,A3(LineSegment.lineSegment,
+                                               A2(Point.point,-6.5,14.0),
+                                               4.0,
+                                               Axis.X)]);
+   var treasurePathSegments = _L.append(treasurePathSegmentsLeft,
+   A2(List.map,
+   LineSegment.mirrorInX,
+   treasurePathSegmentsLeft));
    var constrainToPath = F2(function (orientation,
    point) {
       return function () {
@@ -303,9 +492,10 @@ Elm.World.make = function (_elm) {
             return function () {
                switch (_v1.ctor)
                {case "_Tuple2":
-                  return _U.cmp(_v1._0,0.5) < 1;}
+                  return _U.cmp(_v1._0,
+                    Pacman.size) < 1;}
                _E.Case($moduleName,
-               "on line 159, column 27 to 35");
+               "on line 159, column 27 to 43");
             }();
          });
          var axisOrientation = axisFromOrientation(orientation);
@@ -366,7 +556,7 @@ Elm.World.make = function (_elm) {
    };
    var positions = function (state) {
       return function () {
-         var velocity = 0.2;
+         var velocity = 0.3;
          var orientation = state.pacman.orientation;
          var newPosition = function ($) {
             return warp(constrainToPath(orientation)($));
@@ -436,7 +626,7 @@ Elm.World.make = function (_elm) {
                       A2(Point.point,0.0,0.0),
                       Orientation.West)
                       ,score: 0
-                      ,treasure: Treasure.initialState
+                      ,treasure: Treasure.initialState(treasurePathSegments)
                       ,worldTime: WorldTime.initialState};
    var State = F5(function (a,
    b,
@@ -464,7 +654,10 @@ Elm.World.make = function (_elm) {
                        ,positions: positions
                        ,treasure: treasure
                        ,constrainToPath: constrainToPath
+                       ,treasurePathSegmentsLeft: treasurePathSegmentsLeft
+                       ,treasurePathSegments: treasurePathSegments
                        ,pathSegments: pathSegments
+                       ,pathSegmentsLeft: pathSegmentsLeft
                        ,warp: warp
                        ,portals: portals
                        ,axisFromOrientation: axisFromOrientation
@@ -503,26 +696,6 @@ Elm.Treasure.make = function (_elm) {
    var Text = Elm.Text.make(_elm);
    var Time = Elm.Time.make(_elm);
    var _op = {};
-   var treasureSegments = _L.fromArray([A3(LineSegment.lineSegment,
-                                       A2(Point.point,-5.0,5.0),
-                                       10.0,
-                                       Axis.X)
-                                       ,A3(LineSegment.lineSegment,
-                                       A2(Point.point,-5.0,-5.0),
-                                       10.0,
-                                       Axis.Y)
-                                       ,A3(LineSegment.lineSegment,
-                                       A2(Point.point,5.0,-5.0),
-                                       10.0,
-                                       Axis.Y)
-                                       ,A3(LineSegment.lineSegment,
-                                       A2(Point.point,-10.0,0.0),
-                                       5.0,
-                                       Axis.X)
-                                       ,A3(LineSegment.lineSegment,
-                                       A2(Point.point,5.0,0.0),
-                                       5.0,
-                                       Axis.X)]);
    var treasure = F2(function (kind,
    position) {
       return {_: {}
@@ -559,15 +732,14 @@ Elm.Treasure.make = function (_elm) {
          "between lines 26 and 28");
       }();
    };
-   var initialState = A2(List.concatMap,
-   A2(generateTreasure,Normal,0.5),
-   treasureSegments);
+   var initialState = List.concatMap(A2(generateTreasure,
+   Normal,
+   1.0));
    _elm.Treasure.values = {_op: _op
                           ,treasure: treasure
                           ,points: points
                           ,initialState: initialState
                           ,generateTreasure: generateTreasure
-                          ,treasureSegments: treasureSegments
                           ,Normal: Normal
                           ,Cherry: Cherry
                           ,Treasure: Treasure};
@@ -645,6 +817,22 @@ Elm.LineSegment.make = function (_elm) {
          partialPoints);
       }();
    });
+   var mirrorInX = function (lineSegment) {
+      return _U.replace([["start"
+                         ,function () {
+                            var _v2 = lineSegment.axis;
+                            switch (_v2.ctor)
+                            {case "X":
+                               return A2(Point.point,
+                                 0 - (lineSegment.start.x + lineSegment.length),
+                                 lineSegment.start.y);
+                               case "Y":
+                               return Point.mirrorInX(lineSegment.start);}
+                            _E.Case($moduleName,
+                            "between lines 33 and 39");
+                         }()]],
+      lineSegment);
+   };
    var mirror = function (lineSegment) {
       return _U.replace([["start"
                          ,Point.mirror(lineSegment.start)]
@@ -665,8 +853,8 @@ Elm.LineSegment.make = function (_elm) {
          Basics.abs(p.x - s.start.x),
          Basics.abs(p.x - se));
          return function () {
-            var _v2 = lineSegment.axis;
-            switch (_v2.ctor)
+            var _v3 = lineSegment.axis;
+            switch (_v3.ctor)
             {case "Y":
                return A2(distancePoint,
                  Point.mirror(point),
@@ -682,8 +870,8 @@ Elm.LineSegment.make = function (_elm) {
          var s = lineSegment;
          var p = point;
          return function () {
-            var _v3 = lineSegment.axis;
-            switch (_v3.ctor)
+            var _v4 = lineSegment.axis;
+            switch (_v4.ctor)
             {case "Y":
                return Point.mirror(A2(constrain,
                  Point.mirror(p),
@@ -715,6 +903,7 @@ Elm.LineSegment.make = function (_elm) {
    _elm.LineSegment.values = {_op: _op
                              ,lineSegment: lineSegment
                              ,mirror: mirror
+                             ,mirrorInX: mirrorInX
                              ,distancePoint: distancePoint
                              ,constrain: constrain
                              ,sample: sample
@@ -1016,7 +1205,7 @@ Elm.Pacman.make = function (_elm) {
              ,orientation: orientation
              ,position: position};
    });
-   var size = 0.5;
+   var size = 1.5;
    var Pacman = F2(function (a,b) {
       return {_: {}
              ,orientation: b
@@ -1106,6 +1295,11 @@ Elm.Point.make = function (_elm) {
    var Text = Elm.Text.make(_elm);
    var Time = Elm.Time.make(_elm);
    var _op = {};
+   var mirrorInX = function (p) {
+      return _U.replace([["x"
+                         ,0 - p.x]],
+      p);
+   };
    var mirror = function (p) {
       return {_: {},x: p.y,y: p.x};
    };
@@ -1125,6 +1319,7 @@ Elm.Point.make = function (_elm) {
                        ,point: point
                        ,distance: distance
                        ,mirror: mirror
+                       ,mirrorInX: mirrorInX
                        ,Point: Point};
    return _elm.Point.values;
 };Elm.WorldTime = Elm.WorldTime || {};
