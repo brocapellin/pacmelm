@@ -9,7 +9,7 @@ type Pacman =
     }
 
 size : Float
-size = 0.5
+size = 1.5
 
 pacman
   : Point.Point

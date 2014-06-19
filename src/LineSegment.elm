@@ -27,6 +27,17 @@ mirror lineSegment =
     , axis  <- Axis.mirror lineSegment.axis
     } 
 
+mirrorInX : LineSegment -> LineSegment
+mirrorInX lineSegment =
+    { lineSegment
+    | start <- case lineSegment.axis of
+                Axis.Y -> Point.mirrorInX lineSegment.start
+                Axis.X -> Point.point
+                            -(lineSegment.start.x
+                              + lineSegment.length)
+                            lineSegment.start.y
+    }
+
 distancePoint
   : Point.Point
  -> LineSegment

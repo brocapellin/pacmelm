@@ -40,7 +40,7 @@ initialState =
     { pacman    = pacman (point 0.0 0.0) Orientation.West
     , input     = Input.initialState
     , worldTime = WorldTime.initialState
-    , treasure  = Treasure.initialState
+    , treasure  = Treasure.initialState treasurePathSegments
     , score     = 0
     }
 
@@ -111,7 +111,7 @@ positions state =
             )
              
     velocity
-      = 0.2
+      = 0.3
   in
     { state
     | pacman <- Pacman.position state.pacman newPosition
@@ -156,7 +156,7 @@ constrainToPath orientation point =
       = filter (\(_,l) -> l.axis == axisOrientation)
 
     withinRange
-      = filter (\(d,_) -> d <= 0.5)
+      = filter (\(d,_) -> d <= Pacman.size)
 
     sortByDistance
       = sortBy fst
@@ -172,23 +172,83 @@ constrainToPath orientation point =
   in
     LineSegment.constrain point target
 
+treasurePathSegmentsLeft : [LineSegment.LineSegment]
+treasurePathSegmentsLeft =
+    [ lineSegment (point -12.5 -14.0) 12.0 Axis.X
+    , lineSegment (point -12.5 -13.0) 2.0 Axis.Y
+    , lineSegment (point -1.5 -13.0) 2.0 Axis.Y
+    , lineSegment (point -11.5 -11.0) 4.0 Axis.X
+    , lineSegment (point -4.5 -11.0) 2.0 Axis.X
+    , lineSegment (point -10.5 -10.0) 2.0 Axis.Y
+    , lineSegment (point -7.5 -10.0) 24.0 Axis.Y
+    , lineSegment (point -4.5 -10.0) 2.0 Axis.Y
+    , lineSegment (point -11.5 -8.0) 0.0 Axis.X
+    , lineSegment (point -6.5 -8.0) 1.0 Axis.X
+    , lineSegment (point -3.5 -8.0) 2.0 Axis.X
+    , lineSegment (point -12.5 -7.0) 2.0 Axis.Y
+    , lineSegment (point -1.5 -7.0) 2.0 Axis.Y
+    , lineSegment (point -11.5 -5.0) 3.0 Axis.X
+    , lineSegment (point -6.5 -5.0) 4.0 Axis.X
+    , lineSegment (point -12.5 7.0) 4.0 Axis.X
+    , lineSegment (point -4.5 7.0) 3.0 Axis.X
+    , lineSegment (point -12.5 8.0) 3.0 Axis.Y
+    , lineSegment (point -4.5 8.0) 2.0 Axis.Y
+    , lineSegment (point -11.5 10.0) 3.0 Axis.X
+    , lineSegment (point -6.5 10.0) 1.0 Axis.X
+    , lineSegment (point -3.5 10.0) 3.0 Axis.X
+    , lineSegment (point -12.5 13.0) 1.0 Axis.Y
+    , lineSegment (point -1.5 11.0) 3.0 Axis.Y
+    , lineSegment (point -11.5 14.0) 3.0 Axis.X
+    , lineSegment (point -6.5 14.0) 4.0 Axis.X
+    ]
+
+treasurePathSegments : [LineSegment.LineSegment]
+treasurePathSegments =
+    treasurePathSegmentsLeft
+    ++ map LineSegment.mirrorInX treasurePathSegmentsLeft
+
 pathSegments : [LineSegment.LineSegment]
 pathSegments =
-    [ lineSegment (point -5.0 -5.0) 10.0 Axis.X
-    , lineSegment (point -5.0 5.0) 10.0 Axis.X
-    , lineSegment (point -5.0 -5.0) 10.0 Axis.Y
-    , lineSegment (point 5.0 -5.0) 10.0 Axis.Y
-    , lineSegment (point -10.0 0.0) 5.0 Axis.X
-    , lineSegment (point 5.0 0.0) 5.0 Axis.X
-    ] 
+    [ lineSegment (point -12.5 -14.0) 25.0 Axis.X
+    , lineSegment (point -7.5 -8.0) 15.0 Axis.X
+    , lineSegment (point -4.5 -2.0) 9.0 Axis.X
+    , lineSegment (point -4.5 4.0) 9.0 Axis.X
+    , lineSegment (point -12.5 10.0) 25.0 Axis.X
+    ]
+    ++ pathSegmentsLeft
+    ++ map LineSegment.mirrorInX pathSegmentsLeft
+
+pathSegmentsLeft : [LineSegment.LineSegment]
+pathSegmentsLeft = 
+    [ lineSegment (point -12.5 -14.0) 3.0 Axis.Y
+    , lineSegment (point -1.5 -14.0) 3.0 Axis.Y
+    , lineSegment (point -12.5 -11.0) 5.0 Axis.X
+    , lineSegment (point -4.5 -11.0) 3.0 Axis.X
+    , lineSegment (point -10.5 -11.0) 3.0 Axis.Y
+    , lineSegment (point -7.5 -11.0) 25.0 Axis.Y
+    , lineSegment (point -4.5 -11.0) 3.0 Axis.Y
+    , lineSegment (point -12.5 -8.0) 2.0 Axis.X
+    , lineSegment (point -12.5 -8.0) 3.0 Axis.Y
+    , lineSegment (point -1.5 -8.0) 3.0 Axis.Y
+    , lineSegment (point -12.5 -5.0) 11.0 Axis.X
+    , lineSegment (point -4.5 -5.0) 9.0 Axis.Y
+    , lineSegment (point -14.5 1.0) 10.0 Axis.X
+    , lineSegment (point -1.5 4.0) 3.0 Axis.Y
+    , lineSegment (point -12.5 7.0) 5.0 Axis.X
+    , lineSegment (point -4.5 7.0) 3.0 Axis.X
+    , lineSegment (point -12.5 7.0) 7.0 Axis.Y
+    , lineSegment (point -4.5 7.0) 3.0 Axis.Y
+    , lineSegment (point -1.5 10.0) 4.0 Axis.Y
+    , lineSegment (point -12.5 14.0) 11.0 Axis.X
+    ]
 
 warp : Point.Point -> Point.Point
 warp = Portal.warp portals
 
 portals : [Portal.Portal]
 portals =
-    [ portal 0.1 (point -10.0 0.0) (point 9.8 0.0)
-    , portal 0.1 (point 10.0 0.0) (point -9.8 0.0)
+    [ portal 0.1 (point -14.5 1.0) (point 13.5 1.0)
+    , portal 0.1 (point 14.5 1.0) (point -13.5 1.0)
     ]
 
 axisFromOrientation : Orientation.Orientation -> Axis.Axis

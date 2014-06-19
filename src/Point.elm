@@ -21,3 +21,9 @@ mirror p =
     { x = p.y
     , y = p.x
     }
+
+mirrorInX : Point -> Point
+mirrorInX p =
+    { p
+    | x <- -(p.x)
+    }

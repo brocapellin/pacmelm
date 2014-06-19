@@ -27,9 +27,8 @@ points t = case t.kind of
   Normal -> 10
   Cherry -> 100
 
-initialState : State
-initialState = concatMap (generateTreasure Normal 0.5)
-               treasureSegments
+initialState : [LineSegment.LineSegment] -> State
+initialState = concatMap (generateTreasure Normal 1.0)
 
 generateTreasure
   : Type
@@ -41,12 +40,3 @@ generateTreasure kind unit lineSegment =
     points = LineSegment.sample unit lineSegment
   in
     map (treasure kind) points
-
-treasureSegments : [LineSegment.LineSegment]
-treasureSegments =
-    [ lineSegment (point -5.0 5.0) 10.0 Axis.X
-    , lineSegment (point -5.0 -5.0) 10.0 Axis.Y 
-    , lineSegment (point 5.0 -5.0) 10.0 Axis.Y
-    , lineSegment (point -10.0 0.0) 5.0 Axis.X
-    , lineSegment (point 5.0 0.0) 5.0 Axis.X 
-    ]

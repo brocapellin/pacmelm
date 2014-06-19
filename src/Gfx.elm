@@ -24,12 +24,16 @@ renderResult (windowWidth, windowHeight) state =
 
 resultObjects windowWidth windowHeight state =
   let
-    background = rect (toFloat windowWidth)
-                      (toFloat windowHeight)
-                    |> filled black
+    background = group
+        [ rect (toFloat windowWidth)
+               (toFloat windowHeight)
+            |> filled black
+        , fittedImage 462 511 "resources/dev/level.png"
+            |> toForm
+        ]
   in
        [ background ]
-    ++ map levelPart World.pathSegments
+{-    ++ map levelPart World.pathSegments -}
     ++ treasure state
     ++ [ pacman state ]
     ++ [ score windowWidth windowHeight state ]
@@ -74,7 +78,7 @@ pacman state =
                  toPixels state.pacman.position.y)
         |> rotate (degrees rotation)
 
-toPixels units = 40.0 * units
+toPixels units = 16.4 * units
 
 fmod x y =
     x - (toFloat (floor (x / y))) * y
