@@ -28,7 +28,7 @@ resultObjects windowWidth windowHeight state =
         [ rect (toFloat windowWidth)
                (toFloat windowHeight)
             |> filled black
-        , fittedImage 462 511 "resources/dev/level.png"
+        , fittedImage 462 511 "resources/level.png"
             |> toForm
         ]
   in
